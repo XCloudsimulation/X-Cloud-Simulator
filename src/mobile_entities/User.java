@@ -1,3 +1,4 @@
+package mobile_entities;
 import java.util.Random;
 
 import network.Packet_Data;

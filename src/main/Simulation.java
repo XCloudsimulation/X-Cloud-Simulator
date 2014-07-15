@@ -1,3 +1,5 @@
+package main;
+import mobile_entities.User;
 import mobility.Location;
 
 import org.w3c.dom.CDATASection;
