@@ -1,11 +1,11 @@
 package mobility;
 public class Location {
 
-	public int x, y;
+	public double x, y;
 	
-	public Location(int x, int y){
-		this.x = x;
-		this.y = y;
+	public Location(double loc_x, double loc_y){
+		this.x = loc_x;
+		this.y = loc_y;
 	}
 	
 	public void Update(int x, int y){

@@ -1,8 +1,6 @@
-/mobile_enteties
-/main
-/mobility
-/network
-/mobile_entities
-/framework
-/eit
-/magnitudes
+/vm/
+/network/
+/mobile_entities/
+/main/
+/measurment/
+/mobility/

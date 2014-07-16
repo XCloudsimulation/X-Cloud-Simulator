@@ -1,6 +1,7 @@
 package mobile_entities;
 import java.util.Random;
 
+import mobility.Location;
 import network.Packet_Data;
 import network.Packet_Migrate;
 import eduni.simjava.Sim_entity;
@@ -11,8 +12,12 @@ public class User extends Sim_entity{
 	public static final String OUT_PORT_NAME = "OUT_PORT_NAME";
 	
 	private Sim_port out_port;
-
+	
+	private Location location;
+	
 	private Random rnd;
+	
+	private int rbsAffiliation;
 	
 	public User(String name) {
 		super(name);
@@ -21,6 +26,8 @@ public class User extends Sim_entity{
 		add_port(out_port);
 		
 		rnd = new Random();
+		
+		setLocation(new Location(0, 0));
 	}
 
 	@Override
@@ -29,6 +36,8 @@ public class User extends Sim_entity{
 		int service = 0;
 		
 		while(Sim_system.running()){
+			
+			// Dummy, just to debug.
 			sim_pause(rnd.nextDouble()*5);
 			
 			if (cnt==10){
@@ -39,5 +48,21 @@ public class User extends Sim_entity{
 			}
 			cnt ++;
 		}
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+	public int getRBSAffiliation() {
+		return rbsAffiliation;
+	}
+
+	public void setRBSAffiliation(int rbsAffiliation) {
+		this.rbsAffiliation = rbsAffiliation;
 	}
 }

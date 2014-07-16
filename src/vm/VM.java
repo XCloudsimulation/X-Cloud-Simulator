@@ -154,4 +154,18 @@ public class VM extends Sim_entity {
 			state = new VMState_Inactive();
 		}
 	}
+	
+	private class VMState_TransferingUser extends VMState{
+		public VMState_TransferingUser() {
+			state_desc = VMState_Description.TERMINATING;
+		}
+
+		@Override
+		public void Execute() {
+			sim_pause(0);
+			
+			hostDC.UpdateState(get_name(), VMState_Description.INACTIVE);
+			state = new VMState_Inactive();
+		}
+	}
 }

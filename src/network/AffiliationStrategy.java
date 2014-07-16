@@ -6,9 +6,9 @@ import mobile_entities.*;
 
 public abstract class AffiliationStrategy {
 
-	protected ArrayList<RadioNode> rbs_enteties; 
+	protected RadioBaseStation[][] rbs_enteties; 
 	
-	public AffiliationStrategy(ArrayList<RadioNode> rbs_enteties){
+	public AffiliationStrategy(RadioBaseStation[][] rbs_enteties){
 		this.rbs_enteties = rbs_enteties;
 	}
 	
