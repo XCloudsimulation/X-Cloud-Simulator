@@ -1,7 +1,5 @@
 package network;
 
-import java.util.ArrayList;
-
 import mobile_entities.*;
 
 public abstract class AffiliationStrategy {

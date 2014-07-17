@@ -1,9 +1,5 @@
 package network;
 
-import java.util.ArrayList;
-
-import measurment.LatencyMeasurement;
-
 public class Packet_Migrate extends Packet {
 	private String dest;
 	

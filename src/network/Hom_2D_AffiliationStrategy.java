@@ -1,7 +1,5 @@
 package network;
 
-import java.util.ArrayList;
-
 import mobile_entities.User;
 
 public class Hom_2D_AffiliationStrategy extends AffiliationStrategy {

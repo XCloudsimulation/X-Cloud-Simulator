@@ -2,38 +2,25 @@ package main;
 import mobile_entities.User;
 import mobility.Location;
 import network.RadioBaseStation;
-
-import org.w3c.dom.CDATASection;
-
 import data_centre.*;
 import eduni.simjava.Sim_system;
 
 public class Simulation {
-
-	private RadioBaseStation[][] rbss;
-	private DataCentre[] dcs;
 	
 	public static void main(String[] args){
+		RadioBaseStation[][] rbss;
+		DataCentre[] dcs;
 		
-//		if(args.length ==0){
-//			System.out.println("No input parameters specified. \r Usage:");
-//			return;
-//		}
+		int num_side, nbr_services, rbs_per_dc ;
+		double cell_dim;
+		
+		if(args.length == 0){
+			System.out.println("No input parameters specified. \r Usage:");
+			return;
+		}
 		
 		Sim_system.initialise();
 		
-		// Enteties
-		User user = new User("UE");
-		
-		// Set termination conditions
-		Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 100 , false);
-		
-		
-		// Rin simulation
-		Sim_system.run();
-	}
-	
-	private void initTopology(int num_side, double cell_dim, int rbs_per_dc, int nbr_services){
 		int nbr_rbs = num_side^2;
 		int nbr_dc 	= nbr_rbs/rbs_per_dc;
 		
@@ -73,6 +60,31 @@ public class Simulation {
 
 				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y), dcs[dc_index], nbr); 
 			}
+		}
+		
+		// Enteties
+		User user = new User("UE");
+		
+		// Set termination conditions
+		Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 100 , false);
+		
+		
+		// Rin simulation
+		Sim_system.run();
+	}
+	
+	public enum Variable_Index{
+		NUM_SIDE, CELL_DIM, NBR_SERVICES, RBS_PER_DC;
+		
+		public void PrintUsage(){
+			System.out.println("Usage:");
+			for (Variable_Index target: Variable_Index.values()){
+				System.out.println(target);
+			}
+		}
+		
+		public int NbrVariable(){
+			return Variable_Index.values().length;
 		}
 	}
 	

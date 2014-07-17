@@ -29,7 +29,7 @@ public class RadioBaseStation extends Sim_entity {
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
-		Sim_system.link_ports(getName(), OUT_PORT_NAME, dc.get_name(), dc.IN_PORT_NAME);
+		Sim_system.link_ports(getName(), OUT_PORT_NAME, dc.get_name(), DataCentre.IN_PORT_NAME);
 	}
 
 	@Override
