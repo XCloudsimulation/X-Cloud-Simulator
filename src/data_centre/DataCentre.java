@@ -16,7 +16,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	public static final String OUT_PORT_NAME = "OUT_PORT_NAME";
 	
 	private HashMap<Integer, VM_association> vms;
-	private HashMap<String, DataCentre_association> peers;
+	private HashMap<String, DataCentre_association> peer_refs;
 	
 	private Location loc;
 	
@@ -26,6 +26,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	
 	public DataCentre(String name, Location loc, int nbr_vms) {
 		super(name);
+		
+		System.out.print(name +  "\t Initializing ... ");
 		
 		add_port(new Sim_port(IN_PORT_NAME));
 		add_port(new Sim_port(OUT_PORT_NAME));
@@ -42,17 +44,19 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		}
 		
 		active_vms = 0;
+		
+		peer_refs = new HashMap<String, DataCentre.DataCentre_association>();
+		
+		System.out.println(" DONE");
 	}
 	
-	public void registerPeers(DataCentre_Peer[] peers){
-		// Load data centre peers
-		this.peers = new HashMap<String, DataCentre.DataCentre_association>();
-		
+	public void registerPeers(DataCentre_Peer[] peers){	
 		for (DataCentre_Peer peer : peers){
 			Sim_port port = new Sim_port(peer.name);
 			add_port(port);			
+			Sim_system.link_ports(get_name(), port.get_pname(), peer.name, IN_PORT_NAME);
 			
-			this.peers.put(peer.name, new DataCentre_association(port, this.loc.getDistance(peer.loc)));
+			peer_refs.put(peer.name, new DataCentre_association(port, this.loc.getDistance(peer.loc)));
 		}
 	}
 
@@ -70,7 +74,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 
 	@Override
 	public void UpdateState(String id, VMState_Description state) {
-		System.out.println(getName() + " - WM: " + id + " transitioning to state " + state);
+		System.out.println("\t\t" + get_name() + " - WM: " + id + " transitioning to state " + state);
 		
 		switch (state) {
 			case ACTIVE : active_vms++; break;
@@ -85,8 +89,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 
 	@Override
 	public void Migrate(Sim_event e, String dest) {
-		System.out.println(get_name() + " - Migrating packet from " + e.scheduled_by() +  " to " + dest);
-		send_on_intact(e,peers.get(dest).port);
+		System.out.println("\t\t" + get_name() + " - Migrating packet from " + e.scheduled_by() +  " to " + dest);
+		send_on_intact(e,peer_refs.get(dest).port);
 	}
 	
 	private void UpdateBaseServiceTime(long serviceTime){
@@ -106,6 +110,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			if(e.get_tag()<0){
 				return;
 			}
+			
+			System.out.println("\t\t" + get_name() + " - Received packet of service type " + e.get_tag() + ", from " + e.scheduled_by());
 			
 			send_on_intact(e, vms.get(e.get_tag()).port); 
 		}

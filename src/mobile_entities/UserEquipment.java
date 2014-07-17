@@ -14,7 +14,7 @@ import eduni.simjava.Sim_system;
 public class UserEquipment extends Sim_entity{
 	public static final String OUT_PORT_NAME = "OUT_PORT_NAME";
 	
-	private Sim_port[] rbs_ports;
+/*	private Sim_port[] rbs_ports;*/
 	private Sim_port out_port;
 	
 	private Location location;
@@ -34,7 +34,7 @@ public class UserEquipment extends Sim_entity{
 		add_port(out_port);
 		
 		
-		rbs_ports = new Sim_port[rbss.length*rbss[0].length];
+/*		rbs_ports = new Sim_port[rbss.length*rbss[0].length];
 		for(int i=0; i<rbss.length; i++){
 			for(int j=0; j<rbss[0].length; j++){
 				Sim_port temp = new Sim_port(rbss[i][j].get_name());
@@ -42,7 +42,7 @@ public class UserEquipment extends Sim_entity{
 				add_port(temp);
 				Sim_system.link_ports(get_name(), rbss[i][j].get_name(), rbss[i][j].get_name(), rbss[i][j].IN_PORT_NAME);
 			}
-		}
+		}*/
 	}
 
 	@Override
@@ -55,13 +55,13 @@ public class UserEquipment extends Sim_entity{
 			// Dummy, just to debug.
 			sim_pause(rnd.nextDouble()*5);
 			
-			System.out.println(get_name() + " sending packet to rbs " + getRBSAffiliation() + " on port " + out_port);
+			System.out.println(get_name() + " - sending packet to rbs " + getRBSAffiliation() + " on port " + out_port.get_pname());
 			
 			if (cnt==10){
-				sim_schedule(rbs_ports[getRBSAffiliation()],0.0,service,new Packet_Migrate(service,get_id(),"DC1"));
+				sim_schedule(out_port,0.0,service,new Packet_Migrate(service,get_id(),"DC1"));
 			} else {
 				sim_schedule(out_port,0.0,service,new Packet_Data(service,get_id(),0,cnt));
-				service = rnd.nextInt(3);
+				service = rnd.nextInt(2);
 			}
 			cnt ++;
 		}

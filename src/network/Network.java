@@ -57,7 +57,7 @@ public class Network extends Sim_entity{
 		for(UserEquipment user: hosted_entities){
 			int[] node = affiliation_strategy.AssertAffiliation(user);
 			
-			System.out.println("-> User " + user.get_name() + " associated with " + rbs_enteties[node[0]][node[1]].get_name());
+			System.out.println(user.get_name() + " associated with " + rbs_enteties[node[0]][node[1]].get_name());
 			Sim_system.link_ports(user.get_name(), user.OUT_PORT_NAME, rbs_enteties[node[0]][node[1]].get_name(), rbs_enteties[node[0]][node[1]].IN_PORT_NAME);
 		/*	
 			if(!updated_node_allocations.containsKey(node)){

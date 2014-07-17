@@ -12,7 +12,6 @@ public class RadioBaseStation extends Sim_entity {
 	public static final String IN_PORT_NAME = "IN";
 	public static final String OUT_PORT_NAME = "OUT";
 	
-	
 	private Location location;
 	private Sim_port out_port, in_port;
 	
@@ -20,6 +19,7 @@ public class RadioBaseStation extends Sim_entity {
 	
 	public RadioBaseStation(String name, Location location, DataCentre dc, int nbr) {
 		super(name);
+		
 		this.location = location;
 		this.setNbr(nbr);
 		
@@ -29,7 +29,7 @@ public class RadioBaseStation extends Sim_entity {
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
-		System.out.println(name + " -> " + OUT_PORT_NAME + " -> " + dc.IN_PORT_NAME + " -> " + dc.get_name());
+		//System.out.println(name + " -> " + OUT_PORT_NAME + " -> " + dc.IN_PORT_NAME + " -> " + dc.get_name());
 		Sim_system.link_ports(name, OUT_PORT_NAME, dc.get_name(), dc.get_name() );
 	}
 
@@ -39,7 +39,7 @@ public class RadioBaseStation extends Sim_entity {
 			Sim_event e = new Sim_event();
 			sim_get_next(e);	// Get the next event
 			
-			System.out.println(getName() + " Received packet from " + e.scheduled_by() + " forwardig it to " + out_port);
+			System.out.println("\t" + get_name() + " - Received packet from " + e.scheduled_by() + " forwardig it to " + out_port.get_dest_ename());
 			
 			send_on_intact(e, out_port);
 		}

@@ -38,7 +38,7 @@ public class Simulation {
 		params[Param_Index.NBR_SIDE.toInt()] = 4;
 		params[Param_Index.NRB_SERVICES.toInt()] = 2;
 		params[Param_Index.CELL_DIM.toInt()] = 800;
-		params[Param_Index.RBS_PER_DC.toInt()] = 1;
+		params[Param_Index.RBS_PER_DC.toInt()] = 4;
 		params[Param_Index.NBR_USERS.toInt()] = 10;
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
@@ -73,11 +73,11 @@ public class Simulation {
 		
 		// Initialize data centres
 		dcs = new DataCentre[nbr_dc];
-		DataCentre_Peer[] dcPeers = new DataCentre_Peer[nbr_rbs];
+		DataCentre_Peer[] dcPeers = new DataCentre_Peer[nbr_dc];
 		
-		for(int i=0; i<nbr_rbs; i++){
+		for(int i=0; i<nbr_dc; i++){
 			dcPeers[i] =  new DataCentre_Peer("DC"+i, new Location(i, i));
-			dcs[i] = new DataCentre(dcPeers[i].name, dcPeers[i].loc, i);
+			dcs[i] = new DataCentre(dcPeers[i].name, dcPeers[i].loc, nbr_services);
 		}
 		for(DataCentre dc : dcs){
 			dc.registerPeers(dcPeers);
@@ -91,13 +91,18 @@ public class Simulation {
 		
 		for(int x=0; x<nbr_side; x++){
 			for(int y=0; y<nbr_side; y++){
-				nbr = nbr_side*y+x;
+				nbr = y*nbr_side+x;
 				loc_x = (x*2+1)*cell_dim/2;
 				loc_y = (y*2+1)*cell_dim/2;
 				
-				dc_index = (int) (Math.floor(loc_x/(Math.sqrt(rbs_per_dc)*cell_dim)) + Math.floor(loc_y/(Math.sqrt(rbs_per_dc)*cell_dim))*Math.sqrt(rbs_per_dc));
-
-				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y),dcs[dc_index], nbr); 		
+				double dc_dim = (nbr_side/Math.sqrt(rbs_per_dc));
+				double dc_x = (x/Math.sqrt(rbs_per_dc));
+				double dc_y = (y/Math.sqrt(rbs_per_dc));
+				
+				dc_index = (int) (Math.floor(dc_x) + Math.floor(dc_y)*dc_dim);
+				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y),dcs[dc_index], nbr); 
+				
+				//System.out.println("RBS_x=" + loc_x + ",y=" + loc_y + " = nbr " + nbr+" -> DC_" + dc_index);
 			}
 		}
 		

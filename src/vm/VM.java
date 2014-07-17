@@ -66,10 +66,10 @@ public class VM extends Sim_entity {
 			if(packet instanceof Packet_Migrate){
 				//System.out.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
 				state = new VMState_Migrating(((Packet_Migrate) packet).getDest(), e.scheduled_by());
-				hostDC.UpdateState(getName(), VMState_Description.MIGRATING);
+				hostDC.UpdateState(get_name(), VMState_Description.MIGRATING);
 			}
 			else if (packet instanceof Packet_Data){
-				System.out.println(get_name() + " - Processing request " + ((Packet_Data) packet).number + " of session " + ((Packet_Data) packet).session + " from user " + ((Packet_Data) packet).user);
+				System.out.println("\t\t\t " + get_name() + " - Processing request " + ((Packet_Data) packet).number + " of session " + ((Packet_Data) packet).session + " from user " + ((Packet_Data) packet).user);
 				sim_process(2);
 			} else {
 				System.err.println("Invalid packet type");
