@@ -6,17 +6,17 @@
 
 Version: SimJava 2.0
 
-Simulation date:         den 16 juli 2014
-Simulation start time:   15:32:53 CEST
-Simulation end time:     15:32:53 CEST
+Simulation date:         den 17 juli 2014
+Simulation start time:   10:18:57 CEST
+Simulation end time:     10:18:57 CEST
 
 ############################################################
 #            Overall simulation run information            #
 ############################################################
 
-Total simulated time:    100.71656645054499
+Total simulated time:    0.0
 Total transient time:    0.0
-Total steady state time: 100.71656645054499
+Total steady state time: 0.0
 Transient condition:     None
 Termination condition:   100.0 units of elapsed simulated time
 Output analysis method:  None

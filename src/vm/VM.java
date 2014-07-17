@@ -27,8 +27,6 @@ public class VM extends Sim_entity {
 		
 		add_port(new Sim_port(IN_PORT_NAME));
 		
-		System.out.println(get_name() + " - Starting");
-		
 		state = new VMState_Inactive();
 	}
 	

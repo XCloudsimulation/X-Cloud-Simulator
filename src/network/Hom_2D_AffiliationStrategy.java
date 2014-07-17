@@ -1,6 +1,6 @@
 package network;
 
-import mobile_entities.User;
+import mobile_entities.UserEquipment;
 
 public class Hom_2D_AffiliationStrategy extends AffiliationStrategy {
 
@@ -17,25 +17,25 @@ public class Hom_2D_AffiliationStrategy extends AffiliationStrategy {
 	}
 
 	@Override
-	public int AssertAffiliation(User user) {
+	public int[] AssertAffiliation(UserEquipment user) {
 		double u_x = user.getLocation().x;
 		double u_y = user.getLocation().y;
 		
-		int n_x = (int) Math.floor(u_x/n_x_dim*cell_dim);
-		int n_y = (int) Math.floor(u_y/n_y_dim*cell_dim);
+		int n_x = (int) Math.floor(u_x/cell_dim);
+		int n_y = (int) Math.floor(u_y/cell_dim);
 		
 		int rbsAffiliation;
 		
 		try{
 			rbsAffiliation = rbs_enteties[n_x][n_y].getNbr();
 		}catch(IndexOutOfBoundsException iobe){
-			System.err.println();
+			System.err.println("Out of bounds");
 			rbsAffiliation =  user.getRBSAffiliation();
 		}
 		
 		user.setRBSAffiliation(rbsAffiliation);
 		
-		return rbsAffiliation;
+		return new int[]{n_x, n_y};
 	}
 
 }

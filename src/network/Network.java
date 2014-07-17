@@ -14,20 +14,23 @@ public class Network extends Sim_entity{
 
 	public static final String IN_PORT_NAME = "IN";
 
-	private ArrayList<User> hosted_entities;
+	private UserEquipment[] hosted_entities;
 	private AffiliationStrategy affiliation_strategy;
+	private RadioBaseStation[][] rbs_enteties;
 	
 	private Sim_port in_port;
 	
 	private static HashMap<Integer, ArrayList<Measurement>> node_allocations;
 	
-	public Network(String name, ArrayList<User> hosted_entities, RadioBaseStation[][] rbs_enteties, AffiliationStrategy affiliation_strategy) {
+	public Network(String name, UserEquipment[] hosted_entities, RadioBaseStation[][] rbs_enteties, AffiliationStrategy affiliation_strategy) {
 		super(name);
 		
 		this.hosted_entities = hosted_entities;
+		this.rbs_enteties = rbs_enteties;
 		this.affiliation_strategy = affiliation_strategy;
 		
 		sim_trace(1, "Initilizing Network");
+		
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
@@ -48,32 +51,27 @@ public class Network extends Sim_entity{
 		}
 	}
 	
-	public boolean AddEntity(User user){
-		hosted_entities.add(user);
-		return true;
-	}
-	
-	public void RemoveUser(int id){
-		hosted_entities.remove(id);
-	}
-	
 	public synchronized void UpdateNodeAssociations(){
 		HashMap<Integer, Integer> updated_node_allocations = new HashMap<Integer, Integer>();
 		
-		for(User user: hosted_entities){
-			int node = affiliation_strategy.AssertAffiliation(user);
+		for(UserEquipment user: hosted_entities){
+			int[] node = affiliation_strategy.AssertAffiliation(user);
+			
+			System.out.println("-> User " + user.get_name() + " associated with " + rbs_enteties[node[0]][node[1]].get_name());
+			Sim_system.link_ports(user.get_name(), user.OUT_PORT_NAME, rbs_enteties[node[0]][node[1]].get_name(), rbs_enteties[node[0]][node[1]].IN_PORT_NAME);
+		/*	
 			if(!updated_node_allocations.containsKey(node)){
 				updated_node_allocations.put(node, 0);
 			}
-			updated_node_allocations.put(node,updated_node_allocations.get(node) + 1);
+			updated_node_allocations.put(node,updated_node_allocations.get(node) + 1);*/
 		}
 		
-		for(Integer node: updated_node_allocations.keySet()){
+		/*for(Integer node: updated_node_allocations.keySet()){
 			if(!node_allocations.containsKey(node)){
 				node_allocations.put(node, new ArrayList<Measurement>());
 			}
 			node_allocations.get(node).add(new Measurement(updated_node_allocations.get(node),Sim_system.sim_clock()));
-		}
+		}*/
 	}
 
 	public String getMeasureData(int rn){

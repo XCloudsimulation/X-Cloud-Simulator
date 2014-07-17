@@ -2,6 +2,10 @@ package mobility;
 
 import java.util.ArrayList;
 
+import mobile_entities.UserEquipment;
+
+import org.w3c.dom.UserDataHandler;
+
 import eduni.simjava.Sim_entity;
 import eduni.simjava.Sim_event;
 import eduni.simjava.Sim_port;
@@ -12,20 +16,20 @@ public abstract class MobilityModel extends Sim_entity{
 
 	public static final String IN_PORT_NAME = "IN";
 
-	protected ArrayList<MobileEntity> mobileEnteties;
+	protected UserEquipment[] mobileEnteties;
 
 	protected double t_prev;
 	protected double t_now;
 
 	private Sim_port in_port;
 
-	public MobilityModel(String name, ArrayList<MobileEntity> mobileEnteties) {
+	public MobilityModel(String name, UserEquipment[] mobileEnteties) {
 		super(name);
 		this.mobileEnteties = mobileEnteties;
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 
-		sim_trace(1, get_name() + " - Created - With " + mobileEnteties.size() + " mobile entities of type " + mobileEnteties.getClass() + "\t Type: " + this.getClass());
+		sim_trace(1, get_name() + " - Created - With " + mobileEnteties.length + " mobile entities of type " + mobileEnteties.getClass() + "\t Type: " + this.getClass());
 	}
 
 	@Override

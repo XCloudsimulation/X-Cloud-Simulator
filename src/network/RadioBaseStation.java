@@ -29,7 +29,8 @@ public class RadioBaseStation extends Sim_entity {
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
-		Sim_system.link_ports(getName(), OUT_PORT_NAME, dc.get_name(), DataCentre.IN_PORT_NAME);
+		System.out.println(name + " -> " + OUT_PORT_NAME + " -> " + dc.IN_PORT_NAME + " -> " + dc.get_name());
+		Sim_system.link_ports(name, OUT_PORT_NAME, dc.get_name(), dc.get_name() );
 	}
 
 	@Override
@@ -38,9 +39,9 @@ public class RadioBaseStation extends Sim_entity {
 			Sim_event e = new Sim_event();
 			sim_get_next(e);	// Get the next event
 			
-			send_on_intact(e, out_port);
+			System.out.println(getName() + " Received packet from " + e.scheduled_by() + " forwardig it to " + out_port);
 			
-			sim_trace(1, get_name() + " Forwarded packet to " + e.get_data());
+			send_on_intact(e, out_port);
 		}
 	}
 

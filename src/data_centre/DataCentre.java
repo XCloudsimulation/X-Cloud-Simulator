@@ -50,9 +50,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		
 		for (DataCentre_Peer peer : peers){
 			Sim_port port = new Sim_port(peer.name);
-			
-			add_port(port);
-			Sim_system.link_ports(get_name(), port.get_pname(), peer.name, IN_PORT_NAME);
+			add_port(port);			
 			
 			this.peers.put(peer.name, new DataCentre_association(port, this.loc.getDistance(peer.loc)));
 		}

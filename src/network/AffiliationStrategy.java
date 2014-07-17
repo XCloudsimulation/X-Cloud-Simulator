@@ -10,6 +10,6 @@ public abstract class AffiliationStrategy {
 		this.rbs_enteties = rbs_enteties;
 	}
 	
-	public abstract int AssertAffiliation(User user);
+	public abstract int[] AssertAffiliation(UserEquipment user);
 
 }
