@@ -5,6 +5,8 @@ import eduni.simjava.Sim_entity;
 import eduni.simjava.Sim_event;
 import eduni.simjava.Sim_port;
 import eduni.simjava.Sim_system;
+import measurment.LatencyDepthIndex;
+import measurment.LatencyMeasurement;
 import mobility.*;
 
 public class RadioBaseStation extends Sim_entity {
@@ -41,10 +43,14 @@ public class RadioBaseStation extends Sim_entity {
 			
 			System.out.println("\t" + get_name() + " - Received packet from " + e.scheduled_by() + " forwardig it to " + out_port.get_dest_ename());
 			
+			((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(LatencyDepthIndex.RADIO, 0));
+			((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(LatencyDepthIndex.NETWORK_UPLINK, 0));
+			((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(LatencyDepthIndex.NETWORK_DOWNLINK, 0));
+			
 			send_on_intact(e, out_port);
 		}
 	}
-
+	
 	public synchronized Location getLocation() {
 		return location;
 	}

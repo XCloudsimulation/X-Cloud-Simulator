@@ -1,7 +1,11 @@
 package data_centre;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import network.Packet;
 import vm.VM;
 import vm.VMServerGateway_Interface;
 import vm.VMState_Description;
@@ -17,6 +21,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	
 	private HashMap<Integer, VM_association> vms;
 	private HashMap<String, DataCentre_association> peer_refs;
+	private ArrayList<Packet> packets;
 	
 	private Location loc;
 	
@@ -46,6 +51,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		active_vms = 0;
 		
 		peer_refs = new HashMap<String, DataCentre.DataCentre_association>();
+		
+		packets = new ArrayList<Packet>();
 		
 		System.out.println(" DONE");
 	}
@@ -85,7 +92,6 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			default : System.err.println(state + " is an invalid state."); break;
 		}	
 	}
-	
 
 	@Override
 	public void Migrate(Sim_event e, String dest) {
@@ -96,6 +102,30 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	private void UpdateBaseServiceTime(long serviceTime){
 		for (VM_association target : vms.values()) {
 		    target.vm.UpdateBaseServiceTime(serviceTime);
+		}
+	}
+	
+	public synchronized void StorePacket(Packet p){
+		packets.add(p);
+	}
+	
+	public void DumpPacketData(FileWriter wr){
+		for(Packet packet: packets){
+			try {
+				wr.append(packet.DumpLatencyMeasurements());
+			} catch (IOException e) {
+				System.err.println(get_name() + " - Unable to dump packet.");
+			}
+		}
+	}
+	
+	public void DumpWorkloadData(FileWriter wr){
+		for(VM_association vm: vms.values()){
+			try {
+				wr.append(vm.vm.DumpWorkloadMeasurements());
+			} catch (IOException e) {
+				System.err.println(get_name() + " - Unable to dump packet.");
+			}
 		}
 	}
 	

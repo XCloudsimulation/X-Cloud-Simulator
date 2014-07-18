@@ -1,8 +1,6 @@
 package mobile_entities;
 import java.util.Random;
 
-import com.sun.javafx.menu.RadioMenuItemBase;
-
 import mobility.Location;
 import network.Packet_Data;
 import network.Packet_Migrate;

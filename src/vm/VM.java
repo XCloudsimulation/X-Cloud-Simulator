@@ -1,5 +1,8 @@
 package vm;
 
+import java.util.ArrayList;
+
+import measurment.VMWorkloadMeasurement;
 import network.*;
 import data_centre.DataCentre;
 import eduni.simjava.Sim_entity;
@@ -11,12 +14,18 @@ import eduni.simjava.Sim_system;
 
 public class VM extends Sim_entity {
 	public final static String IN_PORT_NAME = "IN_PORT_NAME";
+	
 	private final static long STARTUP_TIME = 10;
 	private final static long SHUTDOWN_TIME = 10;
 	
+	private ArrayList<VMWorkloadMeasurement> meas;
+	
 	private VMState state;
+	private VMState_Description currentState;
 	
 	private long baseServieTime;
+	
+	private double inStateSince;
 	
 	private DataCentre hostDC;
 	
@@ -28,10 +37,15 @@ public class VM extends Sim_entity {
 		add_port(new Sim_port(IN_PORT_NAME));
 		
 		state = new VMState_Inactive();
+		
+		meas = new ArrayList<VMWorkloadMeasurement>();
 	}
 	
 	@Override
 	public void body(){
+		currentState = VMState_Description.INACTIVE;
+		inStateSince = Sim_system.sim_clock();
+		
 		while(Sim_system.running()){
 			state.Execute();
 		}
@@ -49,6 +63,21 @@ public class VM extends Sim_entity {
 			e = new Sim_event();
 			sim_get_next(e);
 		}
+		
+		public void TransitionToState(VMState new_state){
+			state = new_state;
+			hostDC.UpdateState(get_name(), state.state_desc);
+			
+			double t_now = Sim_system.sim_clock();
+			meas.add(new VMWorkloadMeasurement(currentState, t_now-inStateSince));
+			
+			currentState = state.state_desc;
+			inStateSince = t_now;
+		}
+		
+		public VMState_Description GetStateDescription(){
+			return state_desc;
+		}
 	}
 	
 	private class VMState_Active extends VMState{
@@ -65,8 +94,7 @@ public class VM extends Sim_entity {
 			
 			if(packet instanceof Packet_Migrate){
 				//System.out.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
-				state = new VMState_Migrating(((Packet_Migrate) packet).getDest(), e.scheduled_by());
-				hostDC.UpdateState(get_name(), VMState_Description.MIGRATING);
+				TransitionToState(new VMState_Migrating(((Packet_Migrate) packet).getDest(), e.scheduled_by()));
 			}
 			else if (packet instanceof Packet_Data){
 				System.out.println("\t\t\t " + get_name() + " - Processing request " + ((Packet_Data) packet).number + " of session " + ((Packet_Data) packet).session + " from user " + ((Packet_Data) packet).user);
@@ -97,8 +125,7 @@ public class VM extends Sim_entity {
 			if(e!=null && e.get_tag()>=0){
 				hostDC.Migrate(e, dest);
 			} else{
-				hostDC.UpdateState(get_name(), VMState_Description.TERMINATING);
-				state = new VMState_Terminating();
+				TransitionToState(new VMState_Terminating());
 			}
 			
 		}
@@ -117,9 +144,8 @@ public class VM extends Sim_entity {
 				return;
 			}
 			
-			state = new VMState_Initiating();
+			TransitionToState(new VMState_Initiating());
 			
-			hostDC.UpdateState(get_name(), VMState_Description.INITIATING);
 			sim_putback(e);
 		}
 		
@@ -132,10 +158,9 @@ public class VM extends Sim_entity {
 
 		@Override
 		public void Execute() {
-			
 			sim_pause(10);
-			hostDC.UpdateState(get_name(), VMState_Description.ACTIVE);
-			state = new VMState_Active();
+			
+			TransitionToState(new VMState_Active());
 		}
 	}
 	
@@ -148,8 +173,7 @@ public class VM extends Sim_entity {
 		public void Execute() {
 			sim_pause(0);
 			
-			hostDC.UpdateState(get_name(), VMState_Description.INACTIVE);
-			state = new VMState_Inactive();
+			TransitionToState(new VMState_Inactive());
 		}
 	}
 	
@@ -161,9 +185,18 @@ public class VM extends Sim_entity {
 		@Override
 		public void Execute() {
 			sim_pause(0);
-			
-			hostDC.UpdateState(get_name(), VMState_Description.INACTIVE);
-			state = new VMState_Inactive();
+
+			TransitionToState( new VMState_Active());
 		}
+	}
+
+	public String DumpWorkloadMeasurements() {
+		StringBuilder sb = new StringBuilder();
+		
+		for(VMWorkloadMeasurement vmm: meas){
+			sb.append(vmm.state + ";" + vmm.value + "\r");
+		}
+		
+		return sb.toString();
 	}
 }

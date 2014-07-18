@@ -1,10 +1,10 @@
 package measurment;
 
 public class LatencyMeasurement {
-	public int segment;
+	public LatencyDepthIndex segment;
 	public double value;
 	
-	public LatencyMeasurement(int segment, double value){
+	public LatencyMeasurement(LatencyDepthIndex segment, double value){
 		this.segment = segment;
 		this.value = value;
 	}
