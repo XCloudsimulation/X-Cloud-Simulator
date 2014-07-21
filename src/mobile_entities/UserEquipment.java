@@ -2,6 +2,7 @@ package mobile_entities;
 import java.util.Random;
 
 import mobility.Location;
+import mobility.MobilityState;
 import network.Packet_Data;
 import network.Packet_Migrate;
 import network.RadioBaseStation;
@@ -14,6 +15,8 @@ public class UserEquipment extends Sim_entity{
 	
 /*	private Sim_port[] rbs_ports;*/
 	private Sim_port out_port;
+	
+	private MobilityState mobilityState;
 	
 	private Location location;
 	
@@ -55,16 +58,16 @@ public class UserEquipment extends Sim_entity{
 			
 			System.out.println(get_name() + " - sending packet to rbs " + getRBSAffiliation() + " on port " + out_port.get_pname());
 			
-			if (cnt==10){
-				sim_schedule(out_port,0.0,service,new Packet_Migrate(service,get_id(),"DC1"));
+			if (cnt==100){
+				sim_schedule(out_port,0.0,service,new Packet_Migrate(service, get_id(), 1, 1,cnt, "DC1"));
 			} else {
-				sim_schedule(out_port,0.0,service,new Packet_Data(service,get_id(),0,cnt));
+				sim_schedule(out_port,0.0,service,new Packet_Data(service, get_id(), 1, 20,cnt));
 				service = rnd.nextInt(2);
 			}
 			cnt ++;
 		}
 	}
-
+	
 	public Location getLocation() {
 		return location;
 	}
@@ -79,5 +82,13 @@ public class UserEquipment extends Sim_entity{
 
 	public void setRBSAffiliation(int rbsAffiliation) {
 		this.rbsAffiliation = rbsAffiliation;
+	}
+
+	public MobilityState getMobilityState() {
+		return mobilityState;
+	}
+
+	public void setMobilityState(MobilityState mobilityState) {
+		this.mobilityState = mobilityState;
 	}
 }

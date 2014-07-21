@@ -1,7 +1,7 @@
 package vm;
 
 public enum VMState_Description {
-	INACTIVE(0), INITIATING(1), ACTIVE(2), PROCESS(3), TRANSFERING_USER(4), MIGRATING(5), TERMINATING(6);
+	VM_NAME(0), INACTIVE(1), INITIATING(2), ACTIVE(3), PROCESS(4), TRANSFERING_USER(5), MIGRATING(6), TERMINATING(7);
     private final int value;
 
     private VMState_Description(int value) {

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import measurment.*;
 
 public abstract class Packet {
-	protected int service, user, session, session_size, packet;
+	public int service, user, session, session_size, packet, migrated;
 	protected ArrayList<LatencyMeasurement> latencyMeasurements;
 
 	public Packet(int service, int user, int session, int session_size, int packet){
@@ -14,6 +14,7 @@ public abstract class Packet {
 		this.session = session;
 		this.session_size = session_size;
 		this.packet = packet;
+		migrated = 0;
 		
 		latencyMeasurements = new ArrayList<LatencyMeasurement>();
 	}
@@ -22,11 +23,32 @@ public abstract class Packet {
 		latencyMeasurements.add(meas);
 	}
 	
+	public void Migrated(){
+		migrated ++;
+	}
+	
 	public String DumpLatencyMeasurements(){
-		String[] line = new String[6+LatencyDepthIndex.NbrDepths()];
+		String[] line = new String[5+PacketMeasIndex.NbrDepths()];
 		
-		for(){}
+		for(LatencyMeasurement lm: latencyMeasurements){
+			line[lm.segment.toInt()] = "" + lm.value;
+		}
 		
-		return ;
+		line[PacketMeasIndex.SERVICE.toInt()] 		= "" + service;
+		line[PacketMeasIndex.USER.toInt()] 			= "" + user;
+		line[PacketMeasIndex.SESSION.toInt()] 		= "" + session;
+		line[PacketMeasIndex.SESSION_SIZE.toInt()] 	= "" + session_size;
+		line[PacketMeasIndex.PACKET_NBR.toInt()] 		= "" + packet;
+		line[PacketMeasIndex.MIGRATED.toInt()] 		= "" + migrated;
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for (String value : line){
+			sb.append(value + ";");
+		}
+		
+		sb.append("\r");
+		
+		return sb.toString();
 	}
 }

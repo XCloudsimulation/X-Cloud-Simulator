@@ -2,11 +2,11 @@ package measurment;
 
 import vm.VMState_Description;
 
-public class VMWorkloadMeasurement {
+public class VMMeasIndex {
 	public VMState_Description state;
 	public double value;
 	
-	public VMWorkloadMeasurement(VMState_Description state, double value){
+	public VMMeasIndex(VMState_Description state, double value){
 		this.state = state;
 		this.value = value;
 	}

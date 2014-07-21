@@ -9,6 +9,8 @@ import network.Packet;
 import vm.VM;
 import vm.VMServerGateway_Interface;
 import vm.VMState_Description;
+import measurment.PacketMeasIndex;
+import measurment.LatencyMeasurement;
 import mobility.*;
 import eduni.simjava.Sim_entity;
 import eduni.simjava.Sim_event;
@@ -110,12 +112,12 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	}
 	
 	public void DumpPacketData(FileWriter wr){
-		for(Packet packet: packets){
-			try {
+		try {
+			for(Packet packet: packets){
 				wr.append(packet.DumpLatencyMeasurements());
-			} catch (IOException e) {
-				System.err.println(get_name() + " - Unable to dump packet.");
 			}
+		} catch (IOException e) {
+			System.err.println(get_name() + " - Unable to dump packet.");
 		}
 	}
 	
@@ -142,6 +144,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			}
 			
 			System.out.println("\t\t" + get_name() + " - Received packet of service type " + e.get_tag() + ", from " + e.scheduled_by());
+			
+			((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.12));
 			
 			send_on_intact(e, vms.get(e.get_tag()).port); 
 		}

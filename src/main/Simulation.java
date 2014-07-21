@@ -1,7 +1,11 @@
 package main;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
+import vm.VMState_Description;
 import magnitudes.*;
+import measurment.PacketMeasIndex;
 import mobile_entities.UserEquipment;
 import mobility.Location;
 import mobility.MobilityModel;
@@ -14,6 +18,9 @@ import framework.Clock;
 import framework.Clock_Regular;
 
 public class Simulation {
+	
+	final static String VM_MEAS_FILE_NAME = "vm_meas.csv";
+	final static String PACKET_MEAS_FILE_NAME = "packet_meas.csv";
 	
 	public static void main(String[] args){
 				
@@ -117,14 +124,37 @@ public class Simulation {
 		
 		// Initilize network
 		network = new Network("Network", users, rbss, new Hom_2D_AffiliationStrategy(rbss, cell_dim));
-		
-		// Init mobility model
 				
 		// Set termination conditions
-		Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 100 , false);
+		Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 10 , false);
 		
 		// Run simulation
 		Sim_system.run();
+		
+		// Dump data
+		try {
+			FileWriter p_out = new FileWriter(PACKET_MEAS_FILE_NAME, true);
+			FileWriter vm_out = new FileWriter(VM_MEAS_FILE_NAME, true);
+			
+			for(PacketMeasIndex name : PacketMeasIndex.values()){
+				p_out.append(name + ";");
+			}
+			p_out.append("\r");
+
+			vm_out.append("VM name; State; Duration \r");
+			
+			System.out.print("Dumping measurement data ... ");
+			for(DataCentre dc : dcs){
+				dc.DumpPacketData(p_out);
+				dc.DumpWorkloadData(vm_out);
+			}
+			System.out.println("DONE");
+			
+			p_out.close();
+			vm_out.close();
+		} catch (IOException e) {
+			System.out.println("Failed to dump measurements");
+		}
 	}
 	
 	private enum Param_Index {
