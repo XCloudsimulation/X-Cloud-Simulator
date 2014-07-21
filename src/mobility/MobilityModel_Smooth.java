@@ -9,7 +9,7 @@ import eduni.simjava.Sim_event;
 import eduni.simjava.Sim_system;
 import mobile_entities.UserEquipment;
 
-public class TwoD_MobilityModel extends MobilityModel {
+public class MobilityModel_Smooth extends MobilityModel {
 
 	// Global
 	private Random uni_dist;
@@ -18,7 +18,7 @@ public class TwoD_MobilityModel extends MobilityModel {
 	private ExponentialDistribution exp_dist_car;
 	
 	
-	public TwoD_MobilityModel(String name,
+	public MobilityModel_Smooth(String name,
 			UserEquipment[] mobileEnteties) {
 		super(name, mobileEnteties);
 
