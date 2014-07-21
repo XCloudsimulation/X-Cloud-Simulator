@@ -28,7 +28,7 @@ public abstract class Packet {
 	}
 	
 	public String DumpLatencyMeasurements(){
-		String[] line = new String[5+PacketMeasIndex.NbrDepths()];
+		String[] line = new String[PacketMeasIndex.NbrDepths()];
 		
 		for(LatencyMeasurement lm: latencyMeasurements){
 			line[lm.segment.toInt()] = "" + lm.value;
@@ -38,7 +38,7 @@ public abstract class Packet {
 		line[PacketMeasIndex.USER.toInt()] 			= "" + user;
 		line[PacketMeasIndex.SESSION.toInt()] 		= "" + session;
 		line[PacketMeasIndex.SESSION_SIZE.toInt()] 	= "" + session_size;
-		line[PacketMeasIndex.PACKET_NBR.toInt()] 		= "" + packet;
+		line[PacketMeasIndex.PACKET_NBR.toInt()] 	= "" + packet;
 		line[PacketMeasIndex.MIGRATED.toInt()] 		= "" + migrated;
 		
 		StringBuilder sb = new StringBuilder();

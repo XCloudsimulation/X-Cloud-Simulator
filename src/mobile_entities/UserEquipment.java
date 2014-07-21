@@ -1,6 +1,7 @@
 package mobile_entities;
 import java.util.Random;
 
+import service.Service;
 import mobility.Location;
 import mobility.MobilityState;
 import network.Packet_Data;
@@ -24,7 +25,9 @@ public class UserEquipment extends Sim_entity{
 	
 	private int rbsAffiliation;
 	
-	public UserEquipment(String name, Location location, RadioBaseStation[][] rbss ) {
+	private Service service;
+	
+	public UserEquipment(String name, RadioBaseStation[][] rbss, Service service) {
 		super(name);
 		
 		rnd = new Random();
@@ -34,6 +37,7 @@ public class UserEquipment extends Sim_entity{
 		out_port = new Sim_port(OUT_PORT_NAME);
 		add_port(out_port);
 		
+		this.service = service;
 		
 /*		rbs_ports = new Sim_port[rbss.length*rbss[0].length];
 		for(int i=0; i<rbss.length; i++){
@@ -90,5 +94,10 @@ public class UserEquipment extends Sim_entity{
 
 	public void setMobilityState(MobilityState mobilityState) {
 		this.mobilityState = mobilityState;
+	}
+
+	public void updateLocation() {
+		// TODO Auto-generated method stub
+		
 	}
 }

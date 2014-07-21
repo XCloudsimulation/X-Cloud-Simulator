@@ -10,29 +10,17 @@ import eduni.simjava.Sim_system;
 import mobile_entities.UserEquipment;
 
 public class MobilityModel_Smooth extends MobilityModel {
-
-	// Global
-	private Random uni_dist;
-	
-	// Car - Urban
-	private ExponentialDistribution exp_dist_car;
-	
 	
 	public MobilityModel_Smooth(String name,
 			UserEquipment[] mobileEnteties) {
 		super(name, mobileEnteties);
-
-		uni_dist = new Random();
-		
-		// Distributions
-		//exp_dist = new ExponentialDistribution();
 		
 		int type = 0;
 		int count = 0;
-		int mode_factor = mobileEnteties.length/MobilityMode_Smooth.values().length;
+		int mode_factor = mobileEnteties.length/MobilityModes.values().length;
 		for(UserEquipment ue: mobileEnteties){
 			type = (int) Math.floor(count/mode_factor);
-			ue.setMobilityState(new MobilityState_Smooth(MobilityMode_Smooth.fromInt(type)));
+			//ue.setMobilityState(new MobilityState(MobilityModes.fromInt(type)));
 		}
 		UpdateLocation();
 	}
@@ -52,21 +40,13 @@ public class MobilityModel_Smooth extends MobilityModel {
 	@Override
 	protected void UpdateLocation() {
 		for(UserEquipment ue: mobileEnteties){
-			switch(((MobilityState_Smooth)ue.getMobilityState()).getMode()){
-				case BIKE: 
-					
-					break;
-				case CAR: break;
-				case PEDESTRIAN: break;
-				default: System.err.println("Uknown mode");
-			}
+			ue.updateLocation();
 		}
 	}
 
 	@Override
 	protected void ResetModel() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -74,4 +54,74 @@ public class MobilityModel_Smooth extends MobilityModel {
 		
 	}
 	
+	private abstract class ModeModel{
+		protected Random uniform;
+		protected ExponentialDistribution direction_dist, speed_dist;
+		
+		protected int v_max, a_min, a_max;
+		protected MobilityState state;
+		protected double current_speed, target_speed, current_direction, target_direction, acceleration, dom_x, dom_y, remaining_turn_time, next_speed_event, next_direction_event;
+		
+		
+		private Location location;
+		
+		public ModeModel(double dom_x, double dom_y){
+			uniform = new Random();
+			state = MobilityState.MOBILE;
+			
+			this.dom_x = dom_x;
+			this.dom_y = dom_y;
+			
+			location = new Location(uniform.nextDouble()*dom_x, uniform.nextDouble()*dom_y);
+		}
+		
+		public void update(double delta_time){
+			
+		}
+		
+		private void getNewDirection() {
+			target_direction = direction_dist.sample();
+			remaining_turn_time = 2.0 + uniform.nextDouble()*8.0;
+		}
+
+		private void getNewSpeed() {
+			target_speed = speed_dist.sample();
+			acceleration = target_speed<current_speed ? uniform.nextDouble()*a_min : uniform.nextDouble()*a_max;
+		}
+
+		private void handleEdge() {
+			
+		}
+
+		private void move(double delta_time) {
+			double new_x, new_y;
+			turn();
+			
+			current_speed += acceleration*delta_time;
+			if(current_speed == target_speed){
+				acceleration = 0;
+			}
+			
+		}
+
+		private void turn() {
+			
+		}
+		
+		protected void assignMovement(){
+			
+		}
+	}
+	
+	private class ModeModel_Car extends ModeModel{
+
+		public ModeModel_Car(double dom_x, double dom_y){
+			super(dom_x, dom_y);
+			
+			direction_dist 	= new ExponentialDistribution(25);
+			speed_dist 		= new ExponentialDistribution(0);
+			
+			assignMovement();
+		}
+	}
 }
