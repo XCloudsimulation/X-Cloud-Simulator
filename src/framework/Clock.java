@@ -28,7 +28,7 @@ public abstract class Clock extends Sim_entity{
 		
 		this.pulse_ID = pulse_ID;
 		
-		System.out.println(get_name() + ": Frequency set to " + 1.0/time.toSec() + " Hz, once per " + time.tomSec() + " milliseconds.");
+		//System.out.println(get_name() + ": Frequency set to " + 1.0/time.toSec() + " Hz, once per " + time.tomSec() + " milliseconds.");
 	}
 	
 	@Override

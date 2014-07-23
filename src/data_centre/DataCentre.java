@@ -34,7 +34,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	public DataCentre(String name, Location loc, int nbr_vms, double base_service_time) {
 		super(name);
 		
-		System.out.print(name +  "\t Initializing ... ");
+		//System.out.print(name +  "\t Initializing ... ");
 		
 		add_port(new Sim_port(IN_PORT_NAME));
 		add_port(new Sim_port(OUT_PORT_NAME));
@@ -60,7 +60,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		
 		UpdateBaseServiceTime(base_service_time);
 		
-		System.out.println(" DONE");
+		//System.out.println(" DONE");
 	}
 	
 	public void registerPeers(DataCentre_Peer[] peers){	
@@ -87,7 +87,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 
 	@Override
 	public void UpdateState(String id, VMState_Description state) {
-		System.out.println("\t\t" + get_name() + " - WM: " + id + " transitioning to state " + state);
+		//System.out.println("\t\t" + get_name() + " - WM: " + id + " transitioning to state " + state);
 		
 		switch (state) {
 			case ACTIVE : active_vms++; break;

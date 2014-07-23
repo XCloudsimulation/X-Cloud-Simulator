@@ -54,7 +54,7 @@ public class UserEquipment extends Sim_entity{
 			}
 		}
 		
-		System.out.println(get_name() + " - Initial location x=" + mobility.getLocation().x + ", y=" + mobility.getLocation().y);
+		//System.out.println(get_name() + " - Initial location x=" + mobility.getLocation().x + ", y=" + mobility.getLocation().y);
 		
 		migrate = false;
 	}

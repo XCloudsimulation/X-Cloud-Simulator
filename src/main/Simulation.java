@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import service.Service_WEB_2001;
 import vm.VMState_Description;
@@ -21,6 +22,7 @@ import eduni.simjava.Sim_system;
 import framework.Clock;
 import framework.Clock_Regular;
 
+
 public class Simulation {
 	
 	final static String VM_MEAS_FILE_NAME = "vm_meas";
@@ -32,7 +34,7 @@ public class Simulation {
 	
 	public static void main(String[] args){
 				
-		System.out.println(" ---- X-Cloud Simulator ---- ");
+		System.out.println(" ---- X-Cloud Simulator ----");
 		
 		// Init framework
 		Sim_system.initialise();
@@ -55,7 +57,7 @@ public class Simulation {
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
 		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 86400;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 68400;
 		double base_service_time = -1;
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
@@ -64,14 +66,21 @@ public class Simulation {
 		
 		// Read parameters
 		if(args.length == 0){
-			System.out.println("No input parameters specified.");
+			System.out.println("No input parameters specified, continuing with default values.");
 			Param_Index.PrintUsage();
+			
 		} else if(args.length != Param_Index.NbrParams()){
-			System.out.println("Invalid number of arguments");
+			System.out.println("Invalid number of arguments, continuing with default values.");
 		} else{
 			for(Param_Index index : Param_Index.values()){
-				params[index.toInt()] = Integer.parseInt(args[index.toInt()]);
-			}
+				switch(index){
+				case BASE_SERVICE_TIME : 
+					base_service_time = Double.parseDouble(args[Param_Index.BASE_SERVICE_TIME.toInt()]); 
+				break;
+				default: 
+					params[index.toInt()] = Integer.parseInt(args[index.toInt()]);
+				}
+			}	
 		}
 			
 		// Save parameters
@@ -87,10 +96,6 @@ public class Simulation {
 		// Simulation domain
 		dom_x = cell_dim*nbr_side;
 		dom_y = dom_x;
-		
-		System.out.println("\t Simulation domain x=" + dom_x + ", y=" + dom_y);
-		System.out.println("\t Number of RBS=" + nbr_rbs + ", dimensions= " + cell_dim);
-		System.out.println("\t Number of users=" + nbr_users);
 		
 		// configure simulation
 		if(nbr_rbs%rbs_per_dc!=0){
@@ -139,7 +144,7 @@ public class Simulation {
 				dc_index = (int) (Math.floor(dc_x)*dc_dim + Math.floor(dc_y));
 				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y),dcs[dc_index], nbr); 
 				
-				System.out.println("RBS_"+nbr+", x=" + loc_x + ", y=" + loc_y + " = nbr " + nbr+" -> DC_" + dc_index);
+				//System.out.println("RBS_"+nbr+", x=" + loc_x + ", y=" + loc_y + " = nbr " + nbr+" -> DC_" + dc_index);
 				
 				nbr ++;
 			}
@@ -162,10 +167,34 @@ public class Simulation {
 		// Set termination conditions
 		Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, sim_time.toSec(), false);
 		
-		System.out.println(" --------------------------- ");
+		System.out.println("\tSIMULATION_DOMAIN : X=" + dom_x + " Y=" + dom_y);
+		for(Param_Index index : Param_Index.values()){
+			switch(index){
+			case BASE_SERVICE_TIME : 
+				System.out.println("\tBASE_SERVICE_TIME : " + base_service_time);
+				break;
+			default: 
+				System.out.println("\t"  + index + " : " + params[index.value]);
+			}
+			
+		}
+
 		
+		System.out.println(" ---------------------------");
+		
+		long start = System.currentTimeMillis();
 		// Run simulation
 		Sim_system.run();
+		long duration = System.currentTimeMillis()-start;
+		
+		long hours = TimeUnit.MILLISECONDS.toHours(duration);
+		long min = TimeUnit.MILLISECONDS.toMinutes(duration);
+		long sec = TimeUnit.MILLISECONDS.toSeconds(duration);
+		long msec = TimeUnit.MILLISECONDS.toMillis(duration);
+		
+		String str_duration = (hours>0?hours+"hours,":"") +  (min>0?min+"minutes, ":"") + (sec>0?sec+" seconds":"");
+		
+		System.out.println("\t Simulation duration: " + str_duration);
 		
 		// Dump data
 		try {
@@ -173,11 +202,12 @@ public class Simulation {
 			Date date = new Date();
 			
 			File path = new File(dateFormat.format(date));
+			path.mkdir();
 			
-			FileWriter p_out 	= new FileWriter(new File(path,PACKET_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
-			FileWriter vm_out 	= new FileWriter(new File(path,VM_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
-			FileWriter rbs_out 	= new FileWriter(new File(path,CELL_OCCUPANCY_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
-			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS+"_"+dateFormat.format(date) + FILE_ENDING), true);
+			FileWriter p_out 	= new FileWriter(new File(path,PACKET_MEAS_FILE_NAME+FILE_ENDING), true);
+			FileWriter vm_out 	= new FileWriter(new File(path,VM_MEAS_FILE_NAME+FILE_ENDING), true);
+			FileWriter rbs_out 	= new FileWriter(new File(path,CELL_OCCUPANCY_MEAS_FILE_NAME+FILE_ENDING), true);
+			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS+FILE_ENDING), true);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -201,10 +231,13 @@ public class Simulation {
 			}
 			
 			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
+			sim_out.append("TIME_UNIT;" + "Seconds" + "\r");
+			sim_out.append("SIMULATION_DUATION;" + str_duration + "\r");
 			for(Param_Index index : Param_Index.values()){
 				sim_out.append(index + ";" + params[index.value]+ "\r");
 			}
 			sim_out.append("BASE_SERVICE_TIME;" +base_service_time);
+			
 			
 			System.out.println("DONE");
 			
@@ -218,7 +251,7 @@ public class Simulation {
 	}
 	
 	private enum Param_Index {
-	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5);
+	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5), BASE_SERVICE_TIME(6);
 	    private final int value;
 
 	    private Param_Index(int value) {
