@@ -18,4 +18,6 @@ public abstract class Service{
 	public abstract Time getMeanArrivalRate();
 	
 	public abstract Time getMeanSessionTime();
+
+	public abstract int getServiceNbr();
 }

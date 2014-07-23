@@ -95,4 +95,10 @@ public class Service_HTTP extends Service {
 		return null;
 	}
 
+	@Override
+	public int getServiceNbr() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

@@ -2,7 +2,7 @@ package distributions;
 
 import java.util.Random;
 
-public class My_IverseGaussian {
+public class My_IverseGaussian{
 	private double mu, lambda;
 	
 	public My_IverseGaussian(double mu, double lambda){
@@ -21,4 +21,9 @@ public class My_IverseGaussian {
 	       else
 	              return (mu*mu)/x;
 	}
+
+	public double mean(){
+		return mu;
+	}
+	
 }

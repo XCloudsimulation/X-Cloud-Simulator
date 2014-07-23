@@ -11,7 +11,7 @@ import eduni.simjava.distributions.Sim_random_obj;
  * @version     1.0, 26 April 2014
  * @author      William T??rneberg
  */
-public class My_exponential_obj implements DiscreteGenerator {
+public class ExponentialDist implements DiscreteGenerator {
 	private Sim_random_obj source;
 	private double lambda;
 	private String name;
@@ -22,7 +22,7 @@ public class My_exponential_obj implements DiscreteGenerator {
 	 * @param name The name to be associated with this instance
 	 * @param lambda The mean of the distribution
 	 */
-	public My_exponential_obj(String name, double lambda) {
+	public ExponentialDist(String name, double lambda) {
 		if (lambda <= 0.0) {
 			throw new Sim_parameter_exception("Sim_poisson_obj: The mean must be greater than 0.");
 		}
@@ -39,7 +39,7 @@ public class My_exponential_obj implements DiscreteGenerator {
 	 * @param seed The initial seed for the generator, two instances with
 	 *             the same seed will generate the same sequence of numbers
 	 */
-	public My_exponential_obj(String name, double lambda, long seed) {
+	public ExponentialDist(String name, double lambda, long seed) {
 		if (lambda <= 0.0) {
 			throw new Sim_parameter_exception("Sim_poisson_obj: The mean must be greater than 0.");
 		}

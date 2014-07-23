@@ -28,22 +28,28 @@ public abstract class Packet {
 	}
 	
 	public String DumpLatencyMeasurements(){
-		String[] line = new String[PacketMeasIndex.NbrDepths()];
+		String[] lines = new String[PacketMeasIndex.NbrDepths()];
+		
+		double[] values = new double[PacketMeasIndex.NbrDepths()];
 		
 		for(LatencyMeasurement lm: latencyMeasurements){
-			line[lm.segment.toInt()] = "" + lm.value;
+			values[lm.segment.toInt()] += lm.value;
 		}
 		
-		line[PacketMeasIndex.SERVICE.toInt()] 		= "" + service;
-		line[PacketMeasIndex.USER.toInt()] 			= "" + user;
-		line[PacketMeasIndex.SESSION.toInt()] 		= "" + session;
-		line[PacketMeasIndex.SESSION_SIZE.toInt()] 	= "" + session_size;
-		line[PacketMeasIndex.PACKET_NBR.toInt()] 	= "" + packet;
-		line[PacketMeasIndex.MIGRATED.toInt()] 		= "" + migrated;
+		for(PacketMeasIndex index : PacketMeasIndex.values()){
+			lines[index.toInt()] = "" + values[index.toInt()];
+		}
+		
+		lines[PacketMeasIndex.SERVICE.toInt()] 		= "" + service;
+		lines[PacketMeasIndex.USER.toInt()] 		= "" + user;
+		lines[PacketMeasIndex.SESSION.toInt()] 		= "" + session;
+		lines[PacketMeasIndex.SESSION_SIZE.toInt()] = "" + session_size;
+		lines[PacketMeasIndex.PACKET_NBR.toInt()] 	= "" + packet;
+		lines[PacketMeasIndex.MIGRATED.toInt()] 	= "" + migrated;
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for (String value : line){
+		for (String value : lines){
 			sb.append(value + ";");
 		}
 		

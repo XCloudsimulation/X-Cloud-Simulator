@@ -24,7 +24,7 @@ public abstract class Clock extends Sim_entity{
 		out_port = new Sim_port(OUT_PORT_NAME);
 		add_port(out_port);
 		
-		this.period = time.toMin();
+		this.period = time.toSec();
 		
 		this.pulse_ID = pulse_ID;
 		

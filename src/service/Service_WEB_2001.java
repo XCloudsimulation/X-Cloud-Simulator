@@ -1,8 +1,5 @@
 package service;
 
-import org.apache.commons.math3.analysis.function.Gaussian;
-import org.apache.commons.math3.analysis.function.Inverse;
-import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.PoissonDistribution;
 
@@ -14,11 +11,14 @@ public class Service_WEB_2001 extends Service {
 	private PoissonDistribution interSession;
 	private My_IverseGaussian nbrClicks;
 	private LogNormalDistribution interClick;
+	private int service;
 	
-	public Service_WEB_2001() {
+	public Service_WEB_2001(int service) {
 		interSession = new PoissonDistribution(0.01);
 		nbrClicks = new My_IverseGaussian(5,3);
 		interClick = new LogNormalDistribution(3, 1.1);
+		
+		this.service = service;
 	}
 
 	@Override
@@ -38,26 +38,31 @@ public class Service_WEB_2001 extends Service {
 
 	@Override
 	public Time getMeanInterRequestTime() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Time getMeanInterSessionTime() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Time getMeanArrivalRate() {
-		// TODO Auto-generated method stub
-		return null;
+		double nbr_requests = nbrClicks.mean();
+		double inter_packet = interClick.getNumericalMean();
+		double inter_sesison = interSession.getNumericalMean();
+		
+		return new Time_Sec(1/(nbr_requests/(nbr_requests*inter_packet+inter_sesison)));
 	}
 
 	@Override
 	public Time getMeanSessionTime() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public int getServiceNbr() {
+		return service;
 	}
 
 }

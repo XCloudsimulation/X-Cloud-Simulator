@@ -2,9 +2,9 @@ package mobile_entities;
 import java.util.Random;
 
 import service.Service;
-import mobility.Location;
-import mobility.MobilityState;
+import mobility.*;
 import network.Packet_Data;
+import network.Packet_Description;
 import network.Packet_Migrate;
 import network.RadioBaseStation;
 import eduni.simjava.Sim_entity;
@@ -13,91 +13,118 @@ import eduni.simjava.Sim_system;
 
 public class UserEquipment extends Sim_entity{
 	public static final String OUT_PORT_NAME = "OUT_PORT_NAME";
+	public static final String PREV_OUT_PORT_NAME = "PREV_OUT_PORT_NAME";
 	
-/*	private Sim_port[] rbs_ports;*/
-	private Sim_port out_port;
+	private Sim_port[] rbs_ports;
+	//private Sim_port out_port, prev_out_port;
 	
-	private MobilityState mobilityState;
-	
-	private Location location;
+	private ModeModel mobility;
 	
 	private Random rnd;
 	
-	private int rbsAffiliation;
+	private int rbsAffiliation, prev_rbsAffiliation;
+	private int[] rbsPos;
+	private String dc, prev_dc;
 	
-	private Service service;
+	private Service service_model;
 	
-	public UserEquipment(String name, RadioBaseStation[][] rbss, Service service) {
+	private boolean migrate;
+	
+	public UserEquipment(String name, RadioBaseStation[][] rbss, Service service, ModeModel mobility) {
 		super(name);
 		
 		rnd = new Random();
 		
-		setLocation(location);
-		
-		out_port = new Sim_port(OUT_PORT_NAME);
+		/*out_port = new Sim_port(OUT_PORT_NAME);
 		add_port(out_port);
+
+		prev_out_port = new Sim_port(PREV_OUT_PORT_NAME);
+		add_port(prev_out_port);*/
 		
-		this.service = service;
+		this.service_model = service;
+		this.mobility = mobility;
 		
-/*		rbs_ports = new Sim_port[rbss.length*rbss[0].length];
+		rbs_ports = new Sim_port[rbss.length*rbss[0].length];
 		for(int i=0; i<rbss.length; i++){
 			for(int j=0; j<rbss[0].length; j++){
 				Sim_port temp = new Sim_port(rbss[i][j].get_name());
-				rbs_ports[i*j+j] = temp;
+				rbs_ports[rbss[i][j].getNbr()] = temp;
 				add_port(temp);
 				Sim_system.link_ports(get_name(), rbss[i][j].get_name(), rbss[i][j].get_name(), rbss[i][j].IN_PORT_NAME);
 			}
-		}*/
+		}
+		
+		System.out.println(get_name() + " - Initial location x=" + mobility.getLocation().x + ", y=" + mobility.getLocation().y);
+		
+		migrate = false;
 	}
 
 	@Override
 	public void body(){
-		int cnt = 0;
-		int service = 0;
+		int clicks;
+		int session=0;
 		
 		while(Sim_system.running()){
+			sim_pause(service_model.getInterSessionTime().toSec());
 			
-			// Dummy, just to debug.
-			sim_pause(rnd.nextDouble()*5);
+			clicks = service_model.getSessionSize();
 			
-			System.out.println(get_name() + " - sending packet to rbs " + getRBSAffiliation() + " on port " + out_port.get_pname());
-			
-			if (cnt==100){
-				sim_schedule(out_port,0.0,service,new Packet_Migrate(service, get_id(), 1, 1,cnt, "DC1"));
-			} else {
-				sim_schedule(out_port,0.0,service,new Packet_Data(service, get_id(), 1, 20,cnt));
-				service = rnd.nextInt(2);
+			for(int i=0; i<clicks; i++){
+				if(migrate){
+					sim_schedule(rbs_ports[prev_rbsAffiliation],0.0,Packet_Description.MIGRATE.toInt(),new Packet_Migrate(service_model.getServiceNbr(), get_id(), session, clicks, i, dc));
+					migrate = false;
+				}
+				
+				sim_pause(service_model.getInterRequestTime().toSec());
+				
+				try{
+				sim_schedule(rbs_ports[rbsAffiliation],0.0,Packet_Description.DATA.toInt(),new Packet_Data(service_model.getServiceNbr(), get_id(), session, clicks,i));
+				}catch(Exception e){
+					System.err.println(rbsAffiliation + " - " + rbs_ports[rbsAffiliation]);
+				}
 			}
-			cnt ++;
+			
+			session ++;
 		}
 	}
 	
-	public Location getLocation() {
-		return location;
+	public synchronized Location getLocation() {
+		return mobility.getLocation();
 	}
 
-	public void setLocation(Location location) {
-		this.location = location;
+	public synchronized void setLocation(Location location) {
+		mobility.setLocation(location);
 	}
 
-	public int getRBSAffiliation() {
+	public synchronized int getRBSAffiliation() {
 		return rbsAffiliation;
 	}
 
-	public void setRBSAffiliation(int rbsAffiliation) {
+	public synchronized void setRBSAffiliation(int rbsAffiliation) {
+		prev_rbsAffiliation = this.rbsAffiliation;
 		this.rbsAffiliation = rbsAffiliation;
 	}
 
-	public MobilityState getMobilityState() {
-		return mobilityState;
+	public synchronized void updateLocation(double time) {
+		mobility.update(time);
 	}
 
-	public void setMobilityState(MobilityState mobilityState) {
-		this.mobilityState = mobilityState;
+	public int[] getRbsPos() {
+		return rbsPos;
 	}
 
-	public void updateLocation() {
-		// TODO Auto-generated method stub
-		
+	public void setRbsPos(int[] rbsPos) {
+		this.rbsPos = rbsPos;
+	}
+
+	public void setDC(String dc_name) {
+		prev_dc = dc;
+		dc = dc_name;
+	}
+	
+	public void updateDC(String dc_name) {
+		prev_dc = dc;
+		dc = dc_name;
+		migrate = true;
 	}
 }

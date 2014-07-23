@@ -27,11 +27,11 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	
 	private Location loc;
 	
-	private int nbr_vms;
+	private int nbr_vms,active_vms;
 	
-	private int active_vms;
+	private double base_service_time;
 	
-	public DataCentre(String name, Location loc, int nbr_vms) {
+	public DataCentre(String name, Location loc, int nbr_vms, double base_service_time) {
 		super(name);
 		
 		System.out.print(name +  "\t Initializing ... ");
@@ -55,6 +55,10 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		peer_refs = new HashMap<String, DataCentre.DataCentre_association>();
 		
 		packets = new ArrayList<Packet>();
+		
+		this.base_service_time = base_service_time;
+		
+		UpdateBaseServiceTime(base_service_time);
 		
 		System.out.println(" DONE");
 	}
@@ -89,6 +93,7 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			case ACTIVE : active_vms++; break;
 			case INACTIVE : active_vms--; break;
 			case INITIATING : break;
+			case TRANSFERING_USER : break;
 			case TERMINATING : break;
 			case MIGRATING : break;
 			default : System.err.println(state + " is an invalid state."); break;
@@ -97,13 +102,13 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 
 	@Override
 	public void Migrate(Sim_event e, String dest) {
-		System.out.println("\t\t" + get_name() + " - Migrating packet from " + e.scheduled_by() +  " to " + dest);
+		//System.out.println("\t\t" + get_name() + " - Migrating packet from " + e.scheduled_by() +  " to " + dest);
 		send_on_intact(e,peer_refs.get(dest).port);
 	}
 	
-	private void UpdateBaseServiceTime(long serviceTime){
+	private void UpdateBaseServiceTime(double base_service_time2){
 		for (VM_association target : vms.values()) {
-		    target.vm.UpdateBaseServiceTime(serviceTime);
+		    target.vm.UpdateBaseServiceTime(base_service_time2);
 		}
 	}
 	
@@ -143,11 +148,11 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 				return;
 			}
 			
-			System.out.println("\t\t" + get_name() + " - Received packet of service type " + e.get_tag() + ", from " + e.scheduled_by());
+			//System.out.println("\t\t" + get_name() + " - Received packet from " + e.scheduled_by() + ", of type " + ((Packet)e.get_data()).getClass());
 			
 			((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.12));
 			
-			send_on_intact(e, vms.get(e.get_tag()).port); 
+			send_on_intact(e, vms.get(((Packet)e.get_data()).service).port); 
 		}
 	}
 	

@@ -29,14 +29,14 @@ public class Network extends Sim_entity{
 		this.rbs_enteties = rbs_enteties;
 		this.affiliation_strategy = affiliation_strategy;
 		
-		sim_trace(1, "Initilizing Network");
+		//sim_trace(1, "Initilizing Network");
 		
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
 		node_allocations = new HashMap<Integer, ArrayList<Measurement>>();
 		
-		UpdateNodeAssociations();
+		InitNodeAssociations();
 	}
 
 	@Override
@@ -51,15 +51,45 @@ public class Network extends Sim_entity{
 		}
 	}
 	
+	public synchronized void InitNodeAssociations(){
+		for(UserEquipment user: hosted_entities){
+			int[] node = affiliation_strategy.AssertAffiliation(user);
+				int new_rbs = rbs_enteties[node[0]][node[1]].getNbr();
+				
+				user.setRBSAffiliation(new_rbs);
+				user.setRbsPos(node);
+				user.setDC(rbs_enteties[node[0]][node[1]].getDc_name());
+				
+				rbs_enteties[node[0]][node[1]].regUser();
+				//System.out.println("Network - " + user.get_name() + " is now associated with " + rbs_enteties[node[0]][node[1]].get_name());
+
+				//Sim_system.link_ports(user.get_name(), user.OUT_PORT_NAME, rbs_enteties[node[0]][node[1]].get_name(), rbs_enteties[node[0]][node[1]].IN_PORT_NAME);
+			}
+	}
+	
 	public synchronized void UpdateNodeAssociations(){
-		HashMap<Integer, Integer> updated_node_allocations = new HashMap<Integer, Integer>();
+		//HashMap<Integer, Integer> updated_node_allocations = new HashMap<Integer, Integer>();
 		
 		for(UserEquipment user: hosted_entities){
 			int[] node = affiliation_strategy.AssertAffiliation(user);
 			
-			System.out.println(user.get_name() + " associated with " + rbs_enteties[node[0]][node[1]].get_name());
-			Sim_system.link_ports(user.get_name(), user.OUT_PORT_NAME, rbs_enteties[node[0]][node[1]].get_name(), rbs_enteties[node[0]][node[1]].IN_PORT_NAME);
-		/*	
+			int prev_rbs = user.getRBSAffiliation();
+			int new_rbs = rbs_enteties[node[0]][node[1]].getNbr();
+					
+			if(prev_rbs != new_rbs){
+				int[] prev_rbs_pos = user.getRbsPos();
+
+				rbs_enteties[node[0]][node[1]].regUser();
+				rbs_enteties[prev_rbs_pos[0]][prev_rbs_pos[1]].unregUser();
+				
+				user.setRBSAffiliation(new_rbs);
+				user.setRbsPos(node);
+				user.updateDC(rbs_enteties[node[0]][node[1]].getDc_name());
+				
+				//System.out.println("Network - " + user.get_name() + " is now associated with " + rbs_enteties[node[0]][node[1]].get_name());
+			}
+			
+			/*	
 			if(!updated_node_allocations.containsKey(node)){
 				updated_node_allocations.put(node, 0);
 			}

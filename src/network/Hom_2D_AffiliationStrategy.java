@@ -29,11 +29,9 @@ public class Hom_2D_AffiliationStrategy extends AffiliationStrategy {
 		try{
 			rbsAffiliation = rbs_enteties[n_x][n_y].getNbr();
 		}catch(IndexOutOfBoundsException iobe){
-			System.err.println("Out of bounds");
+			System.err.println(this.getClass() + " - " + user.get_name() + " out of simulation domain bounds");
 			rbsAffiliation =  user.getRBSAffiliation();
 		}
-		
-		user.setRBSAffiliation(rbsAffiliation);
 		
 		return new int[]{n_x, n_y};
 	}
