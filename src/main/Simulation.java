@@ -1,4 +1,5 @@
 package main;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -44,7 +45,7 @@ public class Simulation {
 		MobilityModel mobilityModel;
 		
 		// Clocks
-		Clock clk_mobility = new Clock_Regular("CLK_mobility", 	new Time_Sec(1), 1);
+		Clock clk_mobility = new Clock_Regular("CLK_mobility", 	new Time_Sec(2), 1);
 		Clock clk_network  = new Clock_Regular("CLK_network", 	new Time_Sec(100), 2);
 		
 		// Defaults
@@ -54,7 +55,7 @@ public class Simulation {
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
 		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 100000;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 86400;
 		double base_service_time = -1;
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
@@ -103,7 +104,11 @@ public class Simulation {
 		
 		if(base_service_time==-1){
 			Service_WEB_2001 temp_service = new Service_WEB_2001(0);
-			base_service_time = temp_service.getMeanArrivalRate().toSec()*(nbr_rbs/(nbr_users/nbr_services));
+			
+			double lambda = temp_service.getMeanArrivalRate().toSec();
+			double result = lambda*(nbr_users/nbr_rbs)/nbr_services;
+			
+			base_service_time = 1/result;
 		}
 		
 		for(int i=0; i<nbr_dc; i++){
@@ -167,10 +172,12 @@ public class Simulation {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 			Date date = new Date();
 			
-			FileWriter p_out = new FileWriter(PACKET_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING, true);
-			FileWriter vm_out = new FileWriter(VM_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING, true);
-			FileWriter rbs_out = new FileWriter(CELL_OCCUPANCY_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING, true);
-			FileWriter sim_out = new FileWriter(SIMULATION_PARAMETERS+"_"+dateFormat.format(date) + FILE_ENDING, true);
+			File path = new File(dateFormat.format(date));
+			
+			FileWriter p_out 	= new FileWriter(new File(path,PACKET_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
+			FileWriter vm_out 	= new FileWriter(new File(path,VM_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
+			FileWriter rbs_out 	= new FileWriter(new File(path,CELL_OCCUPANCY_MEAS_FILE_NAME+"_"+dateFormat.format(date) + FILE_ENDING), true);
+			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS+"_"+dateFormat.format(date) + FILE_ENDING), true);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -193,9 +200,9 @@ public class Simulation {
 				}
 			}
 			
-			sim_out.append("DATE;" +dateFormat.format(date));
+			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
 			for(Param_Index index : Param_Index.values()){
-				sim_out.append(index + ";" + params[index.value]);
+				sim_out.append(index + ";" + params[index.value]+ "\r");
 			}
 			sim_out.append("BASE_SERVICE_TIME;" +base_service_time);
 			

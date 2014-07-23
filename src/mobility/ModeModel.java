@@ -54,7 +54,7 @@ public abstract class ModeModel{
 		}
 		
 		private void getNewDirection(double time) {
-			target_direction = uniform.nextDouble()*2*Math.PI;
+			target_direction = current_direction + uniform.nextDouble()*Math.PI;
 			turn_time = turn_time_min + uniform.nextDouble()*(turn_time_max - turn_time_min);
 			next_direction_event = time + direction_event.sample();
 		}
@@ -104,10 +104,6 @@ public abstract class ModeModel{
 			turn_delta = target_direction-current_direction;
 			
 			current_direction += (delta_time/turn_time)*turn_delta;
-			
-			if((turn_delta > 0 && current_direction >= target_direction) || (turn_delta < 0 && current_direction <= target_direction)){
-				turn_delta = 0;
-			}
 		}
 		
 		private void turnAround(){

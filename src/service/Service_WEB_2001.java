@@ -14,7 +14,7 @@ public class Service_WEB_2001 extends Service {
 	private int service;
 	
 	public Service_WEB_2001(int service) {
-		interSession = new PoissonDistribution(0.01);
+		interSession = new PoissonDistribution(0.1);
 		nbrClicks = new My_IverseGaussian(5,3);
 		interClick = new LogNormalDistribution(3, 1.1);
 		
@@ -52,7 +52,9 @@ public class Service_WEB_2001 extends Service {
 		double inter_packet = interClick.getNumericalMean();
 		double inter_sesison = interSession.getNumericalMean();
 		
-		return new Time_Sec(1/(nbr_requests/(nbr_requests*inter_packet+inter_sesison)));
+		double result = nbr_requests/(nbr_requests*inter_packet+inter_sesison);
+		
+		return new Time_Sec(result);
 	}
 
 	@Override

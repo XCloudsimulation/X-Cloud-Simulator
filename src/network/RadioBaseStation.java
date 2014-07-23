@@ -66,6 +66,8 @@ public class RadioBaseStation extends Sim_entity {
 				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_DOWNLINK, 0));
 			}
 			send_on_intact(e, out_port);
+			
+			meas.add(new OccupancyMeasurement(nbr_occupants, Sim_system.sim_clock()));
 		}
 	}
 	
@@ -87,12 +89,10 @@ public class RadioBaseStation extends Sim_entity {
 
 	public void regUser() {
 		nbr_occupants ++;
-		meas.add(new OccupancyMeasurement(nbr_occupants, Sim_system.sim_clock()));
 	}
 	
 	public void unregUser(){
 		nbr_occupants --;
-		meas.add(new OccupancyMeasurement(nbr_occupants, Sim_system.sim_clock()));
 	}
 	
 	public void DumpOccupancyData(FileWriter wr){
