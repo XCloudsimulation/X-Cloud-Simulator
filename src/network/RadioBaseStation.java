@@ -62,12 +62,12 @@ public class RadioBaseStation extends Sim_entity {
 			
 			if((Packet) e.get_data() != null){
 				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.RADIO, 0));
-				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_UPLINK, 0));
-				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_DOWNLINK, 0));
+				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_UPLINK, 0.003));
+				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_DOWNLINK, 0.003));
 			}
 			send_on_intact(e, out_port);
 			
-			meas.add(new OccupancyMeasurement(nbr_occupants, Sim_system.sim_clock()));
+			meas.add(new OccupancyMeasurement(nbr_occupants, e.event_time()));
 		}
 	}
 	

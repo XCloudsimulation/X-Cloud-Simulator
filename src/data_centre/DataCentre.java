@@ -150,7 +150,8 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			
 			//System.out.println("\t\t" + get_name() + " - Received packet from " + e.scheduled_by() + ", of type " + ((Packet)e.get_data()).getClass());
 			
-			((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.12));
+			((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.001));
+			((Packet)e.get_data()).tToQueue = Sim_system.sim_clock();
 			
 			send_on_intact(e, vms.get(((Packet)e.get_data()).service).port); 
 		}

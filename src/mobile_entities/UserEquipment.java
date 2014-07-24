@@ -1,4 +1,7 @@
 package mobile_entities;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import service.Service;
@@ -30,6 +33,8 @@ public class UserEquipment extends Sim_entity{
 	
 	private boolean migrate;
 	
+	private ArrayList<Double> meas;
+	
 	public UserEquipment(String name, RadioBaseStation[][] rbss, Service service, ModeModel mobility) {
 		super(name);
 		
@@ -56,6 +61,8 @@ public class UserEquipment extends Sim_entity{
 		
 		//System.out.println(get_name() + " - Initial location x=" + mobility.getLocation().x + ", y=" + mobility.getLocation().y);
 		
+		meas = new ArrayList<Double>();
+		
 		migrate = false;
 	}
 
@@ -77,11 +84,10 @@ public class UserEquipment extends Sim_entity{
 				
 				sim_pause(service_model.getInterRequestTime().toSec());
 				
-				try{
+				meas.add(Sim_system.clock());
+				
 				sim_schedule(rbs_ports[rbsAffiliation],0.0,Packet_Description.DATA.toInt(),new Packet_Data(service_model.getServiceNbr(), get_id(), session, clicks,i));
-				}catch(Exception e){
-					System.err.println(rbsAffiliation + " - " + rbs_ports[rbsAffiliation]);
-				}
+
 			}
 			
 			session ++;
@@ -126,5 +132,15 @@ public class UserEquipment extends Sim_entity{
 		prev_dc = dc;
 		dc = dc_name;
 		migrate = true;
+	}
+	
+	public void DumpMeas(FileWriter fw){
+		for (double value : meas){
+			try {
+				fw.append(get_name() + ";" + value + "\r");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

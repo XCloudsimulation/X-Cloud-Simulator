@@ -86,7 +86,9 @@ public class VM extends Sim_entity {
 		}
 		
 		protected void AddStateMeas(VMState_Description desc){
-			double t_now = Sim_system.sim_clock();
+			System.out.println(get_name() + " -> " + desc + " @ " + Sim_system.clock());
+			
+			double t_now = Sim_system.clock();
 			vm_meas.add(new VMMeasIndex(currentState, t_now-inStateSince));
 			
 			currentState = desc;
@@ -109,11 +111,11 @@ public class VM extends Sim_entity {
 			//if(packet instanceof Packet_Migrate && sim_waiting(new Sim_from_p(e.scheduled_by())) > 2){
 			if(e!=null && e.get_tag()==Packet_Description.MIGRATE.toInt() && sim_waiting(new Sim_from_p(e.scheduled_by())) > 0){
 				Object packet = e.get_data();
-				//System.err.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
+				System.err.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
 				TransitionToState(new VMState_TransferingUser(((Packet_Migrate) packet).getDest(), e.scheduled_by()));
 				return;
 			} 
-			
+
 			sim_get_next(e);
 			Object packet = e.get_data();
 			
@@ -123,25 +125,31 @@ public class VM extends Sim_entity {
 				int ses_num = ((Packet) packet).session;
 				int ses_siz = ((Packet) packet).session_size;
 				
-				//System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting());
+				((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.QUEUE, Sim_system.sim_clock()-((Packet) packet).tToQueue));
 				((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.PROCESS, baseServieTime));
+				((Packet) packet).processedBy = get_name();
 				
 				hostDC.StorePacket((Packet) packet);
 				
 				AddStateMeas(VMState_Description.PROCESS);
 				sim_pause(baseServieTime);
-				AddStateMeas(VMState_Description.ACTIVE);
+
+				System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
 				
 				if(!sessions.containsKey(user+":"+ses_num)){
 					sessions.put(user+":"+ses_num, ses_siz);
+					System.err.println("\t\t\t " + get_name() + " - New session: " + (user+":"+ses_num));
 				}
 				if(seq_num >= ses_siz-1){
 					sessions.remove(user+":"+ses_num);
-					//System.err.println("\t\t\t " + get_name() + " - Completed session: " + (user+":"+ses_num) + ", remaining sessions: " +sessions.size());
+					System.err.println("\t\t\t " + get_name() + " - Completed session: " + (user+":"+ses_num) + ", remaining sessions: " +sessions.size());
 				}
 				
 				if(sessions.size() == 0 && sim_waiting() == 0){
 					TransitionToState(new VMState_Terminating());
+				} else{
+					AddStateMeas(VMState_Description.IDLE);
+					System.out.println("Still stuff in queue : " + sim_waiting());
 				}
 					
 			} else {
@@ -190,7 +198,7 @@ public class VM extends Sim_entity {
 
 		@Override
 		public void Execute() {
-			//System.out.println(get_name() + " - Transefering " + sim_waiting(new Sim_from_p(user)) + " of " + user + " requests to " + dest);
+			System.out.println(get_name() + " - Transefering " + sim_waiting(new Sim_from_p(user)) + " of " + user + " requests to " + dest);
 			
 			//super.Execute();
 			Time migate_time = new Time_mSec(10);
@@ -223,7 +231,7 @@ public class VM extends Sim_entity {
 				sim_select(new Sim_from_p(user),e);
 			} 
 			
-			//System.out.println(get_name() + " - Transefering done - Remainig packets: " + sim_waiting());
+			System.out.println(get_name() + " - Transefering done - Remainig packets: " + sim_waiting());
 
 			
 			if(sessions.size() == 0 && sim_waiting() == 0){
@@ -247,7 +255,7 @@ public class VM extends Sim_entity {
 				return;
 			} else if(e.get_tag()==Packet_Description.DATA.toInt()){
 				Object packet = e.get_data();
-				((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.QUEUE, e.end_waiting_time()-e.event_time()));
+				((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.QUEUE, Sim_system.sim_clock()-((Packet) packet).tToQueue));
 				
 				TransitionToState(new VMState_Initiating());
 				deffered_event = e;
@@ -267,13 +275,16 @@ public class VM extends Sim_entity {
 			Time init_time = new Time_Sec(82);
 			
 			sim_pause(init_time.toSec());
-			sim_completed(deffered_event);
 			
 			Object packet = deffered_event.get_data();
+			
 			((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.QUEUE, init_time.toSec()));
-			((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.PROCESS, 2));
+			((Packet) packet).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.PROCESS, baseServieTime));
 				
 			hostDC.StorePacket((Packet) packet);
+			
+			sim_pause(baseServieTime);
+			sim_completed(deffered_event);
 			
 			deffered_event = null;
 			

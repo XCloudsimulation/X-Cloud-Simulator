@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import service.FileTransfer1998;
 import service.Service_WEB_2001;
 import vm.VMState_Description;
 import magnitudes.*;
@@ -28,7 +29,8 @@ public class Simulation {
 	final static String VM_MEAS_FILE_NAME = "vm_meas";
 	final static String PACKET_MEAS_FILE_NAME = "packet_meas";
 	final static String CELL_OCCUPANCY_MEAS_FILE_NAME = "cell_occupancy_meas";
-	final static String SIMULATION_PARAMETERS = "simulation_parameters";
+	final static String SIMULATION_PARAMETERS_FILE_NAME = "simulation_parameters";
+	final static String PACKET_RATE_MEAS_FILE_NAME = "packet_rate";
 	
 	final static String FILE_ENDING = ".csv";
 	
@@ -56,9 +58,9 @@ public class Simulation {
 		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
-		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 68400;
-		double base_service_time = -1;
+		params[Param_Index.NBR_USERS.toInt()] 			= 1;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
+		double base_service_time 						= -1;
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
 		double cell_dim, dom_x, dom_y;
@@ -108,12 +110,12 @@ public class Simulation {
 		DataCentre_Peer[] dcPeers = new DataCentre_Peer[nbr_dc];
 		
 		if(base_service_time==-1){
-			Service_WEB_2001 temp_service = new Service_WEB_2001(0);
+			FileTransfer1998 temp_service = new FileTransfer1998(0);
 			
 			double lambda = temp_service.getMeanArrivalRate().toSec();
-			double result = lambda*(nbr_users/nbr_rbs)/nbr_services;
+			double result = lambda*(((double)nbr_users/(double)nbr_rbs)/(double)nbr_services);
 			
-			base_service_time = 1/result;
+			base_service_time = 1.0/result;
 		}
 		
 		for(int i=0; i<nbr_dc; i++){
@@ -153,7 +155,7 @@ public class Simulation {
 		// Initilize users
 		users = new UserEquipment[nbr_users];
 		for(int i=0; i<users.length; i++){
-			users[i] = new UserEquipment("User"+i, rbss, new Service_WEB_2001(0),new ModeModel_Car(dom_x,dom_y));
+			users[i] = new UserEquipment("User"+i, rbss, new FileTransfer1998((int) Math.floor(i/(nbr_users/nbr_services))),new ModeModel_Car(dom_x,dom_y));
 		}
 		
 		// Initilize network
@@ -192,7 +194,7 @@ public class Simulation {
 		long sec = TimeUnit.MILLISECONDS.toSeconds(duration);
 		long msec = TimeUnit.MILLISECONDS.toMillis(duration);
 		
-		String str_duration = (hours>0?hours+"hours,":"") +  (min>0?min+"minutes, ":"") + (sec>0?sec+" seconds":"");
+		String str_duration = (hours>0?hours+"hours,":"") +  (min>0?min+"minutes, ":"") + (sec>0?sec+" seconds, ":"") +  msec+" millisecond";
 		
 		System.out.println("\t Simulation duration: " + str_duration);
 		
@@ -207,7 +209,8 @@ public class Simulation {
 			FileWriter p_out 	= new FileWriter(new File(path,PACKET_MEAS_FILE_NAME+FILE_ENDING), true);
 			FileWriter vm_out 	= new FileWriter(new File(path,VM_MEAS_FILE_NAME+FILE_ENDING), true);
 			FileWriter rbs_out 	= new FileWriter(new File(path,CELL_OCCUPANCY_MEAS_FILE_NAME+FILE_ENDING), true);
-			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS+FILE_ENDING), true);
+			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS_FILE_NAME+FILE_ENDING), true);
+			FileWriter pack_out 	= new FileWriter(new File(path,PACKET_RATE_MEAS_FILE_NAME+FILE_ENDING), true);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -230,6 +233,10 @@ public class Simulation {
 				}
 			}
 			
+			for(UserEquipment ue: users){
+				ue.DumpMeas(pack_out);
+			}
+			
 			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
 			sim_out.append("TIME_UNIT;" + "Seconds" + "\r");
 			sim_out.append("SIMULATION_DUATION;" + str_duration + "\r");
@@ -245,6 +252,7 @@ public class Simulation {
 			vm_out.close();
 			rbs_out.close();
 			sim_out.close();
+			pack_out.close();
 		} catch (IOException e) {
 			System.out.println("Failed to dump measurements");
 		}

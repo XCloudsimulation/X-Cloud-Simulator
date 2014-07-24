@@ -1,11 +1,7 @@
-/data_centre
-/distributions
-/framework
-/magnitudes
-/main
-/measurment
-/mobile_entities
-/mobility
-/network
 /service
+/main
+/data_centre
+/measurment
+/network
 /vm
+/mobile_entities

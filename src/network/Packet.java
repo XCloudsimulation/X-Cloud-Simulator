@@ -7,6 +7,8 @@ import measurment.*;
 public abstract class Packet {
 	public int service, user, session, session_size, packet, migrated;
 	protected ArrayList<LatencyMeasurement> latencyMeasurements;
+	public double tToQueue;
+	public String processedBy;
 
 	public Packet(int service, int user, int session, int session_size, int packet){
 		this.service = service;
@@ -46,6 +48,7 @@ public abstract class Packet {
 		lines[PacketMeasIndex.SESSION_SIZE.toInt()] = "" + session_size;
 		lines[PacketMeasIndex.PACKET_NBR.toInt()] 	= "" + packet;
 		lines[PacketMeasIndex.MIGRATED.toInt()] 	= "" + migrated;
+		lines[PacketMeasIndex.PROCESSED_BY.toInt()] = processedBy;
 		
 		StringBuilder sb = new StringBuilder();
 		
