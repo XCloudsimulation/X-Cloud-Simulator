@@ -100,6 +100,7 @@ public class VM extends Sim_entity {
 
 		public VMState_Active() {
 			state_desc = VMState_Description.ACTIVE;
+			AddStateMeas(VMState_Description.IDLE);
 		}
 
 		@Override
@@ -134,7 +135,7 @@ public class VM extends Sim_entity {
 				AddStateMeas(VMState_Description.PROCESS);
 				sim_pause(baseServieTime);
 
-				System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
+				//System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
 				
 				if(!sessions.containsKey(user+":"+ses_num)){
 					sessions.put(user+":"+ses_num, ses_siz);
