@@ -2,6 +2,7 @@ package service;
 
 import magnitudes.*;
 
+import org.apache.commons.math3.distribution.LogNormalDistribution;
 import org.apache.commons.math3.distribution.WeibullDistribution;
 
 import service.Service;
@@ -9,8 +10,9 @@ import jsc.distributions.Pareto;
 
 public class FileTransfer1998 extends Service {
 	
-	private Pareto requestSize,fileSize, offTime_pareto; // Shape = alpha, Location = k
+	private Pareto requestSize, offTime_pareto, fileSize; // Shape = alpha, Location = k
 	private WeibullDistribution offTime;
+	//private LogNormalDistribution fileSize;
 	
 	private int service_nbr;
 
@@ -38,11 +40,7 @@ public class FileTransfer1998 extends Service {
 	
 	@Override
 	public synchronized Time getMeanArrivalRate(){
-		int p = (int)getMeanSessionSize();
-		double irr = p*getMeanInterRequestTime().toSec();
-		double isr = getMeanInterSessionTime().toSec();
-		
-		return new Time_Sec(p/(irr+isr));
+		return new Time_Sec(1.7372);
 	}
 
 	public synchronized Time getMeanInterRequestTime() {

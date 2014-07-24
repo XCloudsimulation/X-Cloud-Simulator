@@ -3,14 +3,16 @@ package network;
 import java.util.ArrayList;
 
 import measurment.*;
+import mobility.Location;
 
 public abstract class Packet {
 	public int service, user, session, session_size, packet, migrated;
 	protected ArrayList<LatencyMeasurement> latencyMeasurements;
 	public double tToQueue;
 	public String processedBy;
+	public Location location;
 
-	public Packet(int service, int user, int session, int session_size, int packet){
+	public Packet(int service, int user, int session, int session_size, int packet, Location location){
 		this.service = service;
 		this.user = user;
 		this.session = session;

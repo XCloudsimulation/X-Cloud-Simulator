@@ -17,6 +17,8 @@ import mobility.*;
 
 public class RadioBaseStation extends Sim_entity {
 	
+	private static final double SPEED_OF_LIGHT = 299792458.0;
+	
 	public static final String IN_PORT_NAME = "IN";
 	public static final String OUT_PORT_NAME = "OUT";
 	
@@ -61,6 +63,7 @@ public class RadioBaseStation extends Sim_entity {
 			//System.out.println("\t" + get_name() + " - Received packet from " + e.scheduled_by() + " forwardig it to " + out_port.get_dest_ename());
 			
 			if((Packet) e.get_data() != null){
+				Location user_loc = ((Packet) e.get_data()).location;
 				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.RADIO, 0));
 				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_UPLINK, 0.003));
 				((Packet) e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.NETWORK_DOWNLINK, 0.003));

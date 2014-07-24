@@ -111,7 +111,7 @@ public class VM extends Sim_entity {
 			//if(packet instanceof Packet_Migrate && sim_waiting(new Sim_from_p(e.scheduled_by())) > 2){
 			if(e!=null && e.get_tag()==Packet_Description.MIGRATE.toInt() && sim_waiting(new Sim_from_p(e.scheduled_by())) > 0){
 				Object packet = e.get_data();
-				System.err.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
+				//System.err.println(get_name() + " - Migrating to DC: " + ((Packet_Migrate) packet).getDest());
 				TransitionToState(new VMState_TransferingUser(((Packet_Migrate) packet).getDest(), e.scheduled_by()));
 				return;
 			} 
@@ -134,7 +134,7 @@ public class VM extends Sim_entity {
 				AddStateMeas(VMState_Description.PROCESS);
 				sim_pause(baseServieTime);
 
-				//System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
+				System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
 				
 				if(!sessions.containsKey(user+":"+ses_num)){
 					sessions.put(user+":"+ses_num, ses_siz);

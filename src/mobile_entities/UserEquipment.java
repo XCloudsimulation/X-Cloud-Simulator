@@ -78,7 +78,7 @@ public class UserEquipment extends Sim_entity{
 			
 			for(int i=0; i<clicks; i++){
 				if(migrate){
-					sim_schedule(rbs_ports[prev_rbsAffiliation],0.0,Packet_Description.MIGRATE.toInt(),new Packet_Migrate(service_model.getServiceNbr(), get_id(), session, clicks, i, dc));
+					sim_schedule(rbs_ports[prev_rbsAffiliation],0.0,Packet_Description.MIGRATE.toInt(),new Packet_Migrate(service_model.getServiceNbr(), get_id(), session, clicks, i, dc, mobility.getLocation()));
 					migrate = false;
 				}
 				
@@ -86,7 +86,7 @@ public class UserEquipment extends Sim_entity{
 				
 				meas.add(Sim_system.clock());
 				
-				sim_schedule(rbs_ports[rbsAffiliation],0.0,Packet_Description.DATA.toInt(),new Packet_Data(service_model.getServiceNbr(), get_id(), session, clicks,i));
+				sim_schedule(rbs_ports[rbsAffiliation],0.0,Packet_Description.DATA.toInt(),new Packet_Data(service_model.getServiceNbr(), get_id(), session, clicks,i,mobility.getLocation()));
 
 			}
 			

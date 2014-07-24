@@ -57,14 +57,16 @@ public class Simulation {
 		params[Param_Index.NBR_SIDE.toInt()] 			= 4;
 		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
-		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
+		params[Param_Index.RBS_PER_DC.toInt()] 			= 4;
 		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 86400;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
 		double base_service_time 						= -1;
+		File dir 										= new File("Results");
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
 		double cell_dim, dom_x, dom_y;
 		Time sim_time;
+
 		
 		// Read parameters
 		if(args.length == 0){
@@ -76,9 +78,12 @@ public class Simulation {
 		} else{
 			for(Param_Index index : Param_Index.values()){
 				switch(index){
-				case BASE_SERVICE_TIME : 
+				case BASE_SERVICE_TIME: 
 					base_service_time = Double.parseDouble(args[Param_Index.BASE_SERVICE_TIME.toInt()]); 
-				break;
+					break;
+				case RESULT_DIR:
+					dir = new File(args[Param_Index.RESULT_DIR.toInt()]);
+					break;
 				default: 
 					params[index.toInt()] = Integer.parseInt(args[index.toInt()]);
 				}
@@ -94,6 +99,7 @@ public class Simulation {
 		cell_dim = params[Param_Index.CELL_DIM.toInt()];
 		nbr_users = params[Param_Index.NBR_USERS.toInt()];
 		sim_time = new Time_Sec(params[Param_Index.SIMULATION_TIME.toInt()]);
+		
 					
 		// Simulation domain
 		dom_x = cell_dim*nbr_side;
@@ -110,7 +116,7 @@ public class Simulation {
 		DataCentre_Peer[] dcPeers = new DataCentre_Peer[nbr_dc];
 		
 		if(base_service_time==-1){
-			FileTransfer1998 temp_service = new FileTransfer1998(0);
+			Service_WEB_2001 temp_service = new Service_WEB_2001(0);
 			
 			double lambda = temp_service.getMeanArrivalRate().toSec();
 			double result = lambda*(((double)nbr_users/(double)nbr_rbs)/(double)nbr_services);
@@ -144,7 +150,7 @@ public class Simulation {
 				double dc_y = (y/Math.sqrt(rbs_per_dc));
 				
 				dc_index = (int) (Math.floor(dc_x)*dc_dim + Math.floor(dc_y));
-				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y),dcs[dc_index], nbr); 
+				rbss[x][y] = new RadioBaseStation("RBS_" + nbr, new Location(loc_x, loc_y), dcs[dc_index], nbr); 
 				
 				//System.out.println("RBS_"+nbr+", x=" + loc_x + ", y=" + loc_y + " = nbr " + nbr+" -> DC_" + dc_index);
 				
@@ -155,7 +161,7 @@ public class Simulation {
 		// Initilize users
 		users = new UserEquipment[nbr_users];
 		for(int i=0; i<users.length; i++){
-			users[i] = new UserEquipment("User"+i, rbss, new FileTransfer1998((int) Math.floor(i/(nbr_users/nbr_services))),new ModeModel_Car(dom_x,dom_y));
+			users[i] = new UserEquipment("User"+i, rbss, new Service_WEB_2001((int) Math.floor(i/(nbr_users/nbr_services))),new ModeModel_Car(dom_x,dom_y));
 		}
 		
 		// Initilize network
@@ -174,6 +180,9 @@ public class Simulation {
 			switch(index){
 			case BASE_SERVICE_TIME : 
 				System.out.println("\tBASE_SERVICE_TIME : " + base_service_time);
+				break;
+			case RESULT_DIR : 
+				System.out.println("\tRESULT_DIR : " + dir.getAbsolutePath());
 				break;
 			default: 
 				System.out.println("\t"  + index + " : " + params[index.value]);
@@ -203,14 +212,15 @@ public class Simulation {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 			Date date = new Date();
 			
-			File path = new File(dateFormat.format(date));
-			path.mkdir();
+			dir.mkdir();
 			
-			FileWriter p_out 	= new FileWriter(new File(path,PACKET_MEAS_FILE_NAME+FILE_ENDING), true);
-			FileWriter vm_out 	= new FileWriter(new File(path,VM_MEAS_FILE_NAME+FILE_ENDING), true);
-			FileWriter rbs_out 	= new FileWriter(new File(path,CELL_OCCUPANCY_MEAS_FILE_NAME+FILE_ENDING), true);
-			FileWriter sim_out 	= new FileWriter(new File(path,SIMULATION_PARAMETERS_FILE_NAME+FILE_ENDING), true);
-			FileWriter pack_out 	= new FileWriter(new File(path,PACKET_RATE_MEAS_FILE_NAME+FILE_ENDING), true);
+			String desc = "_nbr_usr="+nbr_users+"_nbr_ser="+nbr_services+"_rbs_per_dc="+rbs_per_dc+"_cell_dim="+cell_dim; 
+			
+			FileWriter p_out 	= new FileWriter(new File(dir,PACKET_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+			FileWriter vm_out 	= new FileWriter(new File(dir,VM_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+			FileWriter rbs_out 	= new FileWriter(new File(dir,CELL_OCCUPANCY_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+			FileWriter sim_out 	= new FileWriter(new File(dir,SIMULATION_PARAMETERS_FILE_NAME+desc+FILE_ENDING), false);
+			FileWriter pack_out = new FileWriter(new File(dir,PACKET_RATE_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -259,7 +269,7 @@ public class Simulation {
 	}
 	
 	private enum Param_Index {
-	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5), BASE_SERVICE_TIME(6);
+	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5), BASE_SERVICE_TIME(6), RESULT_DIR(7);
 	    private final int value;
 
 	    private Param_Index(int value) {

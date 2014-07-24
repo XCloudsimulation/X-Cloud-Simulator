@@ -48,13 +48,7 @@ public class Service_WEB_2001 extends Service {
 
 	@Override
 	public Time getMeanArrivalRate() {
-		double nbr_requests = nbrClicks.mean();
-		double inter_packet = interClick.getNumericalMean();
-		double inter_sesison = interSession.getNumericalMean();
-		
-		double result = nbr_requests/(nbr_requests*inter_packet+inter_sesison);
-		
-		return new Time_Sec(result);
+		return new Time_Sec(0.0260);
 	}
 
 	@Override
