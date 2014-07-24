@@ -58,8 +58,8 @@ public class Simulation {
 		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
-		params[Param_Index.NBR_USERS.toInt()] 			= 1;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
+		params[Param_Index.NBR_USERS.toInt()] 			= 100;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 86400;
 		double base_service_time 						= -1;
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;

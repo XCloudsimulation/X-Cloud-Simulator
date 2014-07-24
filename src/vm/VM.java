@@ -86,7 +86,7 @@ public class VM extends Sim_entity {
 		}
 		
 		protected void AddStateMeas(VMState_Description desc){
-			System.out.println(get_name() + " -> " + desc + " @ " + Sim_system.clock());
+			//System.out.println(get_name() + " -> " + desc + " @ " + Sim_system.clock());
 			
 			double t_now = Sim_system.clock();
 			vm_meas.add(new VMMeasIndex(currentState, t_now-inStateSince));
@@ -134,22 +134,22 @@ public class VM extends Sim_entity {
 				AddStateMeas(VMState_Description.PROCESS);
 				sim_pause(baseServieTime);
 
-				System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
+				//System.out.println("\t\t\t " + get_name() + " - Processing request " + seq_num + "/" + ses_siz + " of session " + ses_num + " from user " + user + ", remaining deffered events: " + sim_waiting() + ", at " + Sim_system.clock());
 				
 				if(!sessions.containsKey(user+":"+ses_num)){
 					sessions.put(user+":"+ses_num, ses_siz);
-					System.err.println("\t\t\t " + get_name() + " - New session: " + (user+":"+ses_num));
+					//System.err.println("\t\t\t " + get_name() + " - New session: " + (user+":"+ses_num));
 				}
 				if(seq_num >= ses_siz-1){
 					sessions.remove(user+":"+ses_num);
-					System.err.println("\t\t\t " + get_name() + " - Completed session: " + (user+":"+ses_num) + ", remaining sessions: " +sessions.size());
+					//System.err.println("\t\t\t " + get_name() + " - Completed session: " + (user+":"+ses_num) + ", remaining sessions: " +sessions.size());
 				}
 				
 				if(sessions.size() == 0 && sim_waiting() == 0){
 					TransitionToState(new VMState_Terminating());
 				} else{
 					AddStateMeas(VMState_Description.IDLE);
-					System.out.println("Still stuff in queue : " + sim_waiting());
+					//System.out.println("Still stuff in queue : " + sim_waiting());
 				}
 					
 			} else {
@@ -198,7 +198,7 @@ public class VM extends Sim_entity {
 
 		@Override
 		public void Execute() {
-			System.out.println(get_name() + " - Transefering " + sim_waiting(new Sim_from_p(user)) + " of " + user + " requests to " + dest);
+			//System.out.println(get_name() + " - Transefering " + sim_waiting(new Sim_from_p(user)) + " of " + user + " requests to " + dest);
 			
 			//super.Execute();
 			Time migate_time = new Time_mSec(10);
@@ -231,7 +231,7 @@ public class VM extends Sim_entity {
 				sim_select(new Sim_from_p(user),e);
 			} 
 			
-			System.out.println(get_name() + " - Transefering done - Remainig packets: " + sim_waiting());
+			//System.out.println(get_name() + " - Transefering done - Remainig packets: " + sim_waiting());
 
 			
 			if(sessions.size() == 0 && sim_waiting() == 0){
