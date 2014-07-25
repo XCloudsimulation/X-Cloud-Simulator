@@ -84,7 +84,7 @@ public class UserEquipment extends Sim_entity{
 				
 				sim_pause(service_model.getInterRequestTime().toSec());
 				
-				meas.add(Sim_system.clock());
+				//meas.add(Sim_system.clock());
 				
 				sim_schedule(rbs_ports[rbsAffiliation],0.0,Packet_Description.DATA.toInt(),new Packet_Data(service_model.getServiceNbr(), get_id(), session, clicks,i,mobility.getLocation()));
 
@@ -131,7 +131,10 @@ public class UserEquipment extends Sim_entity{
 	public void updateDC(String dc_name) {
 		prev_dc = dc;
 		dc = dc_name;
-		migrate = true;
+		
+		if(prev_dc != dc){
+			migrate = true;
+		}
 	}
 	
 	public void DumpMeas(FileWriter fw){

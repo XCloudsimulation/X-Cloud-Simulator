@@ -55,11 +55,11 @@ public class Simulation {
 		// Defaults
 		int[] params = new int[Param_Index.NbrParams()];
 		params[Param_Index.NBR_SIDE.toInt()] 			= 4;
-		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
+		params[Param_Index.NRB_SERVICES.toInt()] 		= 3;
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 4;
 		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 5000;
 		double base_service_time 						= -1;
 		File dir 										= new File("Results");
 		
@@ -119,7 +119,7 @@ public class Simulation {
 			Service_WEB_2001 temp_service = new Service_WEB_2001(0);
 			
 			double lambda = temp_service.getMeanArrivalRate().toSec();
-			double result = lambda*(((double)nbr_users/(double)nbr_rbs)/(double)nbr_services);
+			double result = lambda*(((double)nbr_users/((double)nbr_rbs/(double)rbs_per_dc))/(double)nbr_services);
 			
 			base_service_time = 1.0/result;
 		}
@@ -161,7 +161,8 @@ public class Simulation {
 		// Initilize users
 		users = new UserEquipment[nbr_users];
 		for(int i=0; i<users.length; i++){
-			users[i] = new UserEquipment("User"+i, rbss, new Service_WEB_2001((int) Math.floor(i/(nbr_users/nbr_services))),new ModeModel_Car(dom_x,dom_y));
+			int service = (int) Math.floor(i/(nbr_users/nbr_services));
+			users[i] = new UserEquipment("User"+i, rbss, new Service_WEB_2001(service>nbr_services-1?nbr_services-1:service),new ModeModel_Car(dom_x,dom_y));
 		}
 		
 		// Initilize network
@@ -220,7 +221,7 @@ public class Simulation {
 			FileWriter vm_out 	= new FileWriter(new File(dir,VM_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter rbs_out 	= new FileWriter(new File(dir,CELL_OCCUPANCY_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter sim_out 	= new FileWriter(new File(dir,SIMULATION_PARAMETERS_FILE_NAME+desc+FILE_ENDING), false);
-			FileWriter pack_out = new FileWriter(new File(dir,PACKET_RATE_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+			//FileWriter pack_out = new FileWriter(new File(dir,PACKET_RATE_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -243,10 +244,10 @@ public class Simulation {
 				}
 			}
 			
-			for(UserEquipment ue: users){
+	/*		for(UserEquipment ue: users){
 				ue.DumpMeas(pack_out);
 			}
-			
+*/			
 			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
 			sim_out.append("TIME_UNIT;" + "Seconds" + "\r");
 			sim_out.append("SIMULATION_DUATION;" + str_duration + "\r");
@@ -262,7 +263,7 @@ public class Simulation {
 			vm_out.close();
 			rbs_out.close();
 			sim_out.close();
-			pack_out.close();
+			//pack_out.close();
 		} catch (IOException e) {
 			System.out.println("Failed to dump measurements");
 		}
