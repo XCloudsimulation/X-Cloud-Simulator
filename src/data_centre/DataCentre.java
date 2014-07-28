@@ -9,6 +9,7 @@ import network.Packet;
 import vm.VM;
 import vm.VMServerGateway_Interface;
 import vm.VMState_Description;
+import measurment.Event_Measurement;
 import measurment.PacketMeasIndex;
 import measurment.LatencyMeasurement;
 import mobility.*;
@@ -23,15 +24,19 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 	
 	private HashMap<Integer, VM_association> vms;
 	private HashMap<String, DataCentre_association> peer_refs;
+	private HashMap<String,Integer> active_vms;
 	private ArrayList<Packet> packets;
-	
 	private Location loc;
 	
-	private int nbr_vms,active_vms;
+	private int nbr_services, vm_limit;
+	
+	private Scheme scheme;
 	
 	private double base_service_time;
 	
-	public DataCentre(String name, Location loc, int nbr_vms, double base_service_time) {
+	private boolean fully_provisioned;
+	
+	public DataCentre(String name, Location loc, int nbr_vms, double base_service_time, int vm_limit, Scheme scheme) {
 		super(name);
 		
 		//System.out.print(name +  "\t Initializing ... ");
@@ -40,8 +45,9 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		add_port(new Sim_port(OUT_PORT_NAME));
 		
 		this.loc = loc;
-		
-		this.nbr_vms = nbr_vms;
+		this.nbr_services = nbr_vms;
+		this.vm_limit = vm_limit;
+		this.scheme = scheme;
 		
 		// Initiliaze VMs
 		vms = new HashMap<Integer, VM_association>();
@@ -50,9 +56,11 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			CreateVMPlaceholder(i);
 		}
 		
-		active_vms = 0;
+		active_vms = new HashMap<String,Integer>();
 		
 		peer_refs = new HashMap<String, DataCentre.DataCentre_association>();
+		
+		fully_provisioned = false;
 		
 		packets = new ArrayList<Packet>();
 		
@@ -90,16 +98,27 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		//System.out.println("\t\t" + get_name() + " - WM: " + id + " transitioning to state " + state);
 		
 		switch (state) {
-			case ACTIVE : active_vms++; break;
-			case INACTIVE : active_vms--; break;
+			case ACTIVE : active_vms.put(id,0); break;
+			case INACTIVE : active_vms.remove(id); break;
 			case INITIATING : break;
 			case TRANSFERING_USER : break;
 			case TERMINATING : break;
 			case MIGRATING : break;
 			default : System.err.println(state + " is an invalid state."); break;
-		}	
+		}
+		
+		fully_provisioned = active_vms.size()==vm_limit ? true : false;
+		
+		switch(scheme){
+			case FLEXIBLE:
+				double factor = Math.max(active_vms.size(),vm_limit)/vm_limit;
+				UpdateBaseServiceTime(factor*base_service_time);
+				break;
+			default:
+				// Do something
+		}
 	}
-
+	
 	@Override
 	public void Migrate(Sim_event e, String dest) {
 		//System.out.println("\t\t" + get_name() + " - Migrating packet from " + e.scheduled_by() +  " to " + dest);
@@ -150,10 +169,18 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 			
 			//System.out.println("\t\t" + get_name() + " - Received packet from " + e.scheduled_by() + ", of type " + ((Packet)e.get_data()).getClass());
 			
-			((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.001));
-			((Packet)e.get_data()).tToQueue = Sim_system.sim_clock();
-			
-			send_on_intact(e, vms.get(((Packet)e.get_data()).service).port); 
+			switch(scheme){
+				case STRICT:
+					if(fully_provisioned){
+						((Packet)e.get_data()).rejectedBy = get_name();
+						StorePacket((Packet)e.get_data());
+						break;
+					}
+				default: 
+					((Packet)e.get_data()).AddLatencyMeasurement(new LatencyMeasurement(PacketMeasIndex.DISPATCH, 0.001));
+					((Packet)e.get_data()).tToQueue = Sim_system.sim_clock();
+					send_on_intact(e, vms.get(((Packet)e.get_data()).service).port); 
+			}
 		}
 	}
 	
@@ -177,4 +204,17 @@ public class DataCentre extends Sim_entity implements VMServerGateway_Interface{
 		}	
 	}
 	
+	public enum Scheme{
+		STRICT, FLEXIBLE, NONE;	
+		
+		public static Scheme fromString(String scheme){
+			if("STRICT".compareTo(scheme.trim().toUpperCase()) == 0){
+				return STRICT;
+			} else if("FLEXIBLE".compareTo(scheme.trim().toUpperCase()) == 0){
+				return FLEXIBLE;
+			} else {
+				return NONE;
+			}
+		}
+	}
 }

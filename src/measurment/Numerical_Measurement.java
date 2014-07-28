@@ -1,10 +1,10 @@
 package measurment;
 
-public class Measurement {
+public class Numerical_Measurement {
 
 	public double value, time;
 	
-	public Measurement(double value, double time){
+	public Numerical_Measurement(double value, double time){
 		this.value = value;
 		this.time = time;
 	}

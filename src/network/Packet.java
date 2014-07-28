@@ -9,7 +9,7 @@ public abstract class Packet {
 	public int service, user, session, session_size, packet, migrated;
 	protected ArrayList<LatencyMeasurement> latencyMeasurements;
 	public double tToQueue;
-	public String processedBy;
+	public String processedBy, rejectedBy;
 	public Location location;
 
 	public Packet(int service, int user, int session, int session_size, int packet, Location location){
@@ -19,6 +19,9 @@ public abstract class Packet {
 		this.session_size = session_size;
 		this.packet = packet;
 		migrated = 0;
+	
+		processedBy = "";
+		rejectedBy = "";
 		
 		latencyMeasurements = new ArrayList<LatencyMeasurement>();
 	}
@@ -51,6 +54,7 @@ public abstract class Packet {
 		lines[PacketMeasIndex.PACKET_NBR.toInt()] 	= "" + packet;
 		lines[PacketMeasIndex.MIGRATED.toInt()] 	= "" + migrated;
 		lines[PacketMeasIndex.PROCESSED_BY.toInt()] = processedBy;
+		lines[PacketMeasIndex.REJECTED_BY.toInt()] = rejectedBy;
 		
 		StringBuilder sb = new StringBuilder();
 		

@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import service.FileTransfer1998;
+import service.Service;
 import service.Service_WEB_2001;
 import vm.VMState_Description;
 import magnitudes.*;
@@ -19,6 +20,7 @@ import network.Hom_2D_AffiliationStrategy;
 import network.Network;
 import network.RadioBaseStation;
 import data_centre.*;
+import data_centre.DataCentre.Scheme;
 import eduni.simjava.Sim_system;
 import framework.Clock;
 import framework.Clock_Regular;
@@ -55,19 +57,20 @@ public class Simulation {
 		// Defaults
 		int[] params = new int[Param_Index.NbrParams()];
 		params[Param_Index.NBR_SIDE.toInt()] 			= 4;
-		params[Param_Index.NRB_SERVICES.toInt()] 		= 3;
+		params[Param_Index.NRB_SERVICES.toInt()] 		= 2;
 		params[Param_Index.CELL_DIM.toInt()] 			= 800;
-		params[Param_Index.RBS_PER_DC.toInt()] 			= 4;
-		params[Param_Index.NBR_USERS.toInt()] 			= 100;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 5000;
-		double base_service_time 						= -1;
+		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
+		params[Param_Index.NBR_USERS.toInt()] 			= 10;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
+		params[Param_Index.DC_VM_LIMIT.toInt()] 		= 2;//params[Param_Index.NRB_SERVICES.toInt()] ;
+		double base_service_time 						= 0.01;
 		File dir 										= new File("Results");
+		DataCentre.Scheme dc_scheme 					= Scheme.STRICT;
 		
-		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users ;
+		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users, vm_limit;
 		double cell_dim, dom_x, dom_y;
 		Time sim_time;
 
-		
 		// Read parameters
 		if(args.length == 0){
 			System.out.println("No input parameters specified, continuing with default values.");
@@ -84,6 +87,9 @@ public class Simulation {
 				case RESULT_DIR:
 					dir = new File(args[Param_Index.RESULT_DIR.toInt()]);
 					break;
+				case DC_VM_ELASTICITY_SCHEME:
+					dc_scheme = DataCentre.Scheme.fromString(args[Param_Index.DC_VM_ELASTICITY_SCHEME.toInt()]);
+					break;
 				default: 
 					params[index.toInt()] = Integer.parseInt(args[index.toInt()]);
 				}
@@ -99,7 +105,7 @@ public class Simulation {
 		cell_dim = params[Param_Index.CELL_DIM.toInt()];
 		nbr_users = params[Param_Index.NBR_USERS.toInt()];
 		sim_time = new Time_Sec(params[Param_Index.SIMULATION_TIME.toInt()]);
-		
+		vm_limit = params[Param_Index.DC_VM_LIMIT.toInt()];
 					
 		// Simulation domain
 		dom_x = cell_dim*nbr_side;
@@ -116,7 +122,7 @@ public class Simulation {
 		DataCentre_Peer[] dcPeers = new DataCentre_Peer[nbr_dc];
 		
 		if(base_service_time==-1){
-			Service_WEB_2001 temp_service = new Service_WEB_2001(0);
+			Service temp_service = new Service_WEB_2001(0);
 			
 			double lambda = temp_service.getMeanArrivalRate().toSec();
 			double result = lambda*(((double)nbr_users/((double)nbr_rbs/(double)rbs_per_dc))/(double)nbr_services);
@@ -126,7 +132,7 @@ public class Simulation {
 		
 		for(int i=0; i<nbr_dc; i++){
 			dcPeers[i] = new DataCentre_Peer("DC"+i, new Location(i, i));
-			dcs[i] = new DataCentre(dcPeers[i].name, dcPeers[i].loc, nbr_services, base_service_time);
+			dcs[i] = new DataCentre(dcPeers[i].name, dcPeers[i].loc, nbr_services, base_service_time, vm_limit, dc_scheme);
 		}
 		for(DataCentre dc : dcs){
 			dc.registerPeers(dcPeers);
@@ -184,6 +190,9 @@ public class Simulation {
 				break;
 			case RESULT_DIR : 
 				System.out.println("\tRESULT_DIR : " + dir.getAbsolutePath());
+				break;
+			case DC_VM_ELASTICITY_SCHEME :
+				System.out.println("\tDC_VM_ELASTICITY_SCHEME : " + dc_scheme);
 				break;
 			default: 
 				System.out.println("\t"  + index + " : " + params[index.value]);
@@ -270,7 +279,7 @@ public class Simulation {
 	}
 	
 	private enum Param_Index {
-	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5), BASE_SERVICE_TIME(6), RESULT_DIR(7);
+	    NBR_SIDE(0), CELL_DIM(1), RBS_PER_DC(2), NRB_SERVICES(3), NBR_USERS(4), SIMULATION_TIME(5), BASE_SERVICE_TIME(6), RESULT_DIR(7), DC_VM_LIMIT(8), DC_VM_ELASTICITY_SCHEME(9);
 	    private final int value;
 
 	    private Param_Index(int value) {
