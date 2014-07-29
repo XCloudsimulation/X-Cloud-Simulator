@@ -57,13 +57,13 @@ public class Simulation {
 		// Defaults
 		int[] params = new int[Param_Index.NbrParams()];
 		params[Param_Index.NBR_SIDE.toInt()] 			= 4;
-		params[Param_Index.NRB_SERVICES.toInt()] 		= 2;
-		params[Param_Index.CELL_DIM.toInt()] 			= 800;
+		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
+		params[Param_Index.CELL_DIM.toInt()] 			= 1300;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
 		params[Param_Index.NBR_USERS.toInt()] 			= 10;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 1000;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 14400;
 		params[Param_Index.DC_VM_LIMIT.toInt()] 		= 2;//params[Param_Index.NRB_SERVICES.toInt()] ;
-		double base_service_time 						= 0.01;
+		double base_service_time 						= 0.3846153846153846*2; // 50 users
 		File dir 										= new File("Results");
 		DataCentre.Scheme dc_scheme 					= Scheme.STRICT;
 		
