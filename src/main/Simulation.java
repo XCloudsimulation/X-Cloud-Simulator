@@ -2,6 +2,7 @@ package main;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +33,7 @@ public class Simulation {
 	final static String PACKET_MEAS_FILE_NAME = "packet_meas";
 	final static String CELL_OCCUPANCY_MEAS_FILE_NAME = "cell_occupancy_meas";
 	final static String SIMULATION_PARAMETERS_FILE_NAME = "simulation_parameters";
-	final static String PACKET_RATE_MEAS_FILE_NAME = "packet_rate";
+	final static String RBS_AFILL_FILE_NAME = "rbs_affiliation";
 	
 	final static String FILE_ENDING = ".csv";
 	
@@ -60,12 +61,19 @@ public class Simulation {
 		params[Param_Index.NRB_SERVICES.toInt()] 		= 1;
 		params[Param_Index.CELL_DIM.toInt()] 			= 1300;
 		params[Param_Index.RBS_PER_DC.toInt()] 			= 1;
-		params[Param_Index.NBR_USERS.toInt()] 			= 10;
-		params[Param_Index.SIMULATION_TIME.toInt()] 	= 14400;
+		params[Param_Index.NBR_USERS.toInt()] 			= 100;
+		params[Param_Index.SIMULATION_TIME.toInt()] 	= 28800*2;
 		params[Param_Index.DC_VM_LIMIT.toInt()] 		= 2;//params[Param_Index.NRB_SERVICES.toInt()] ;
-		double base_service_time 						= 0.3846153846153846*2; // 50 users
+		double base_service_time 						= -1; // 50 users
 		File dir 										= new File("Results");
 		DataCentre.Scheme dc_scheme 					= Scheme.STRICT;
+		Class serviceModel 								= FileTransfer1998.class;
+		try {
+			Constructor<Service> constructor = serviceModel.getConstructor(serviceModel);
+		} catch (NoSuchMethodException | SecurityException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		int nbr_side, nbr_services, rbs_per_dc, nbr_rbs, nbr_dc, nbr_users, vm_limit;
 		double cell_dim, dom_x, dom_y;
@@ -230,7 +238,7 @@ public class Simulation {
 			FileWriter vm_out 	= new FileWriter(new File(dir,VM_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter rbs_out 	= new FileWriter(new File(dir,CELL_OCCUPANCY_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter sim_out 	= new FileWriter(new File(dir,SIMULATION_PARAMETERS_FILE_NAME+desc+FILE_ENDING), false);
-			//FileWriter pack_out = new FileWriter(new File(dir,PACKET_RATE_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+			FileWriter user_out = new FileWriter(new File(dir,RBS_AFILL_FILE_NAME+desc+FILE_ENDING), false);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -253,10 +261,10 @@ public class Simulation {
 				}
 			}
 			
-	/*		for(UserEquipment ue: users){
-				ue.DumpMeas(pack_out);
+			for(UserEquipment ue: users){
+				ue.DumpMeas(user_out);
 			}
-*/			
+			
 			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
 			sim_out.append("TIME_UNIT;" + "Seconds" + "\r");
 			sim_out.append("SIMULATION_DUATION;" + str_duration + "\r");
@@ -272,7 +280,7 @@ public class Simulation {
 			vm_out.close();
 			rbs_out.close();
 			sim_out.close();
-			//pack_out.close();
+			user_out.close();
 		} catch (IOException e) {
 			System.out.println("Failed to dump measurements");
 		}

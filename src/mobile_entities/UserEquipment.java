@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import service.Service;
+import measurment.Int_Measurement;
 import mobility.*;
 import network.Packet_Data;
 import network.Packet_Description;
@@ -33,7 +34,7 @@ public class UserEquipment extends Sim_entity{
 	
 	private boolean migrate;
 	
-	private ArrayList<Double> meas;
+	private ArrayList<Int_Measurement> meas;
 	
 	public UserEquipment(String name, RadioBaseStation[][] rbss, Service service, ModeModel mobility) {
 		super(name);
@@ -61,7 +62,7 @@ public class UserEquipment extends Sim_entity{
 		
 		//System.out.println(get_name() + " - Initial location x=" + mobility.getLocation().x + ", y=" + mobility.getLocation().y);
 		
-		meas = new ArrayList<Double>();
+		meas = new ArrayList<Int_Measurement>();
 		
 		migrate = false;
 	}
@@ -109,6 +110,10 @@ public class UserEquipment extends Sim_entity{
 	public synchronized void setRBSAffiliation(int rbsAffiliation) {
 		prev_rbsAffiliation = this.rbsAffiliation;
 		this.rbsAffiliation = rbsAffiliation;
+		
+		if(prev_rbsAffiliation != rbsAffiliation){
+			meas.add(new Int_Measurement(rbsAffiliation, Sim_system.sim_clock()));
+		}
 	}
 
 	public synchronized void updateLocation(double time) {
@@ -138,7 +143,7 @@ public class UserEquipment extends Sim_entity{
 	}
 	
 	public void DumpMeas(FileWriter fw){
-		for (double value : meas){
+		for (Int_Measurement value : meas){
 			try {
 				fw.append(get_name() + ";" + value + "\r");
 			} catch (IOException e) {

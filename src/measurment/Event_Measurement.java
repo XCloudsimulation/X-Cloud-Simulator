@@ -1,6 +1,6 @@
 package measurment;
 
-public class Event_Measurement {
+public class Event_Measurement implements Measurement {
 
 	public String event; 
 	public double time;
@@ -10,4 +10,7 @@ public class Event_Measurement {
 		this.time = time;
 	}
 	
+	public String toString(){
+		return event + ";" + time;
+	}
 }
