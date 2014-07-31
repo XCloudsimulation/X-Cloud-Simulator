@@ -69,8 +69,8 @@ public class Simulation {
 		DataCentre.Scheme dc_scheme 					= Scheme.STRICT;
 		Class serviceModel 								= FileTransfer1998.class;
 		try {
-			Constructor<Service> constructor = serviceModel.getConstructor(serviceModel);
-		} catch (NoSuchMethodException | SecurityException e1) {
+			Constructor[] constructor = serviceModel.getConstructors();
+		} catch (SecurityException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -236,9 +236,9 @@ public class Simulation {
 			
 			FileWriter p_out 	= new FileWriter(new File(dir,PACKET_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter vm_out 	= new FileWriter(new File(dir,VM_MEAS_FILE_NAME+desc+FILE_ENDING), false);
-			FileWriter rbs_out 	= new FileWriter(new File(dir,CELL_OCCUPANCY_MEAS_FILE_NAME+desc+FILE_ENDING), false);
+//			FileWriter rbs_out 	= new FileWriter(new File(dir,CELL_OCCUPANCY_MEAS_FILE_NAME+desc+FILE_ENDING), false);
 			FileWriter sim_out 	= new FileWriter(new File(dir,SIMULATION_PARAMETERS_FILE_NAME+desc+FILE_ENDING), false);
-			FileWriter user_out = new FileWriter(new File(dir,RBS_AFILL_FILE_NAME+desc+FILE_ENDING), false);
+//			FileWriter user_out = new FileWriter(new File(dir,RBS_AFILL_FILE_NAME+desc+FILE_ENDING), false);
 			
 			for(PacketMeasIndex name : PacketMeasIndex.values()){
 				p_out.append(name + ";");
@@ -247,7 +247,7 @@ public class Simulation {
 
 			vm_out.append("VM name; State; Duration \r");
 			
-			rbs_out.append("RBS;Occupancy;Time \r");
+//			rbs_out.append("RBS;Occupancy;Time \r");
 			
 			System.out.print("Dumping measurement data ... ");
 			for(DataCentre dc : dcs){
@@ -255,15 +255,15 @@ public class Simulation {
 				dc.DumpWorkloadData(vm_out);
 			}
 			
-			for(int i=0;i<nbr_side;i++){
+/*			for(int i=0;i<nbr_side;i++){
 				for(int j=0;j<nbr_side;j++){
 					rbss[i][j].DumpOccupancyData(rbs_out);
 				}
 			}
-			
-			for(UserEquipment ue: users){
+*/			
+/*			for(UserEquipment ue: users){
 				ue.DumpMeas(user_out);
-			}
+			}*/
 			
 			sim_out.append("DATE;" +dateFormat.format(date) + "\r");
 			sim_out.append("TIME_UNIT;" + "Seconds" + "\r");
@@ -278,9 +278,9 @@ public class Simulation {
 			
 			p_out.close();
 			vm_out.close();
-			rbs_out.close();
+//			rbs_out.close();
 			sim_out.close();
-			user_out.close();
+//			user_out.close();
 		} catch (IOException e) {
 			System.out.println("Failed to dump measurements");
 		}

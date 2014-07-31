@@ -20,7 +20,7 @@ public class Network extends Sim_entity{
 	
 	private Sim_port in_port;
 	
-	private static HashMap<Integer, ArrayList<Numerical_Measurement>> node_allocations;
+	//private static HashMap<Integer, ArrayList<Numerical_Measurement>> node_allocations;
 	
 	public Network(String name, UserEquipment[] hosted_entities, RadioBaseStation[][] rbs_enteties, AffiliationStrategy affiliation_strategy) {
 		super(name);
@@ -34,7 +34,7 @@ public class Network extends Sim_entity{
 		in_port = new Sim_port(IN_PORT_NAME);
 		add_port(in_port);
 		
-		node_allocations = new HashMap<Integer, ArrayList<Numerical_Measurement>>();
+		//node_allocations = new HashMap<Integer, ArrayList<Numerical_Measurement>>();
 		
 		InitNodeAssociations();
 	}
@@ -104,13 +104,13 @@ public class Network extends Sim_entity{
 		}*/
 	}
 
-	public String getMeasureData(int rn){
+/*	public String getMeasureData(int rn){
 		StringBuffer sb = new StringBuffer();
 
 		for(Numerical_Measurement target: node_allocations.get(rn))
 			sb.append(target.value + ";" + target.time + "\r");
 		
 		return sb.toString();
-	} 
+	} */
 }
 

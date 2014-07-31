@@ -111,10 +111,10 @@ public class UserEquipment extends Sim_entity{
 		prev_rbsAffiliation = this.rbsAffiliation;
 		this.rbsAffiliation = rbsAffiliation;
 		
-		if(prev_rbsAffiliation != rbsAffiliation){
+/*		if(prev_rbsAffiliation != rbsAffiliation){
 			meas.add(new Int_Measurement(rbsAffiliation, Sim_system.sim_clock()));
 		}
-	}
+*/	}
 
 	public synchronized void updateLocation(double time) {
 		mobility.update(time);

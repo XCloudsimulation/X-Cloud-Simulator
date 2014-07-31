@@ -131,6 +131,7 @@ public class VM extends Sim_entity {
 				((Packet) packet).processedBy = get_name();
 				
 				hostDC.StorePacket((Packet) packet);
+				packet = null;
 				
 				AddStateMeas(VMState_Description.PROCESS);
 				sim_pause(baseServieTime);
